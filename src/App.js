@@ -1,48 +1,20 @@
-import React, { Component } from 'react';
-import Schedule from './Schedule/Schedule';
+import React from 'react';
 import './App.css';
-import PouchDB from 'pouchdb-browser';
-import moment from 'moment';
+import { BrowserRouter as Router, Route } from 'react-router-dom'
 
-import {Grid} from 'react-bootstrap';
+import Header from './components/header/Header';
+import Schedule from './components/schedule/Schedule';
 
-class App extends Component {
-  constructor() {
-    super();
-    this.state = {
-      scheduleItems: []
-    }
-
-    PouchDB.sync('bms1b', 'http://192.168.2.171:5984/bms1b', {
-      live: true,
-      retry: true
-    }).on('change', function (info) {
-      // handle change
-    }).on('error', function (err) {
-      console.log(err);
-    });
-  }
-
-  componentDidMount() {
-    let db = new PouchDB('bms1b');
-    let outside = this;
-    db.get("Lessons").then(function (doc) {
-      outside.setState({scheduleItems: doc.days[moment().isoWeekday()].lessons});
-    }).catch(function (err) {
-      console.log(err);
-    });
-  }
-
-  //componentWillUnmount() {}
-
-  render() {
-    return (
-      <Grid>
-        My App
-        <Schedule scheduleItems={this.state.scheduleItems}/>
-      </Grid>
-    );
-  }
-}
+const App = () => (
+  <Router>
+    <div>
+      <Header />
+      <div className="container">
+        <Route exact path="/" component={Schedule} />
+        <Route path="/schedule" component={Schedule} />
+      </div>
+    </div>
+  </Router>
+);
 
 export default App;
