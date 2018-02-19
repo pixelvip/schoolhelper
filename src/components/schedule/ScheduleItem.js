@@ -6,8 +6,10 @@ class ScheduleItem extends Component {
       <div className="ScheduleItem">
         <div className="card" >
         	<div className="card-body">
-        		<h4 className="card-title">{this.props.scheduleItem.subject}</h4>
-        		<h6 className="card-subtitle mb-2 text-muted">{this.props.scheduleItem.startTime} - {this.props.scheduleItem.endTime}</h6>
+            <div className="row">
+              <div className="col-auto mr-auto"><h4 className="card-title">{this.props.scheduleItem.subject}</h4></div>
+              <div className="col-auto"><h6 className="card-subtitle mb-2 text-muted">{this.props.scheduleItem.startTime} - {this.props.scheduleItem.endTime}</h6></div>
+            </div>
         		<p className="card-text"><i className="material-icons">place</i> {this.props.scheduleItem.room}</p>
         	</div>
         </div>
