@@ -9,51 +9,46 @@ class Schedule extends Component {
     this.state = {
       scheduleItems: []
     }
+
+    this.db = null;
   }
 
   componentDidMount() {
-    let db = new PouchDB('bms1b');
-
-    PouchDB.sync(db, 'http://mischka.i-t.me:5984/bms1b', {
+    this.db = new PouchDB('bms1b');
+    this.db.replicate.from('http://mischka.i-t.me:5984/bms1b', {
       live: true,
       retry: true
-    }).on('change', function (info) {
-      // handle change
-    }).on('error', function (err) {
-      console.log(err);
     });
 
-    let outside = this;
-    db.get("Lessons").then(function (doc) {
-      let day = doc.days.filter(dayObject => {
-        
-
-        return dayObject.day === moment().isoWeekday() && moment().isBefore(moment(day.lessons[day.lessons.length -1].endTime, "HH:mm"));
-      })[0];
-      if (day) {
-
+    this.db.get("Lessons").then(function (doc) {
+      let dayArray = doc.days;
+      let day = dayArray.find(dayObject => dayObject.day === moment().isoWeekday());
+      if (moment().isAfter(moment(day.lessons[day.lessons.length -1].endTime, "HH:mm"))) {
+        day = dayArray.find(dayObject => dayObject.day > moment().isoWeekday());
+        if (day == null) {
+          day = dayArray.find(dayObject => dayObject.day > 0);
+        }
       }
+      this.setState({scheduleItems: day.lessons});
 
-      console.log(day);
-      outside.setState({scheduleItems: day.lessons});
-    }).catch(function (err) {
+    }.bind(this)).catch(function (err) {
       console.log(err);
     });
   }
 
-  render() {
-    let content;
-    if (this.state.scheduleItems) {
-        content = this.state.scheduleItems.map(scheduleItem => {
-          return <ScheduleItem key={scheduleItem.subject} scheduleItem={scheduleItem} />
-        });
-    } else {
-      content = <p>No lessons found.</p>
-    }
+  componentWillUnmount() {
+    this.db.close();
+  }
 
+  render() {
     return (
       <div className="Schedule">
-          {content}
+        {this.state.scheduleItems.length > 0 ? (
+          this.state.scheduleItems.map(scheduleItem =>
+            <ScheduleItem key={scheduleItem.subject} scheduleItem={scheduleItem} />)
+        ) : (
+          <p>No lessons found.</p>
+        )}
       </div>
     );
   }

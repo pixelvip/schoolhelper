@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
 import PouchDB from 'pouchdb-browser';
-import CalendarSelection from './CalendarSelection';
-import CalendarTable from './CalendarTable';
+import moment from 'moment';
+import Selection from './calendar/Selection';
+import Table from './calendar/Table';
+import AddEvent from './event/AddEvent';
+import EventModal from './event/EventModal';
 
 class Agenda extends Component {
   constructor() {
@@ -11,14 +14,17 @@ class Agenda extends Component {
         dynamic: true,
         weeks: 4,
         weekends: false
-      }
+      },
+      dateSelection: moment()
     }
+
+    this.db = null;
   }
 
   componentDidMount() {
-    let db = new PouchDB('bms1b_agenda');
+    this.db = new PouchDB('bms1b_agenda');
 
-    PouchDB.sync(db, 'http://mischka.i-t.me:5984/bms1b_agenda', {
+    this.db.sync('http://mischka.i-t.me:5984/bms1b_agenda', {
       live: true,
       retry: true
     }).on('change', function (info) {
@@ -28,45 +34,23 @@ class Agenda extends Component {
     });
   }
 
+  componentWillUnmount() {
+    this.db.close();
+  }
+
   onSelectHandler(date) {
-    console.log(date);
+    this.setState({dateSelection: date});
   }
 
   render() {
     return (
       <div className="container">
-        <CalendarSelection config={this.state.config} onSelect={this.onSelectHandler} />
+        <Selection config={this.state.config} onSelect={this.onSelectHandler.bind(this)} />
         <br />
-        <CalendarTable />
+        <Table date={this.state.dateSelection} />
 
-        <button type="button" className="addButton btn btn-light" data-toggle="modal" data-target="#eventModal" data-whatever="@mdo">
-      		<span className="material-icons md-48">add</span>
-      	</button>
-
-        <button type="button" className="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-          Launch demo modal
-        </button>
-
-        <div className="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div className="modal-body">
-                ...
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" className="btn btn-primary">Save changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <AddEvent />
+        <EventModal date={this.dateSelection} event={this.selectedEvent} />
       </div>
     );
   }

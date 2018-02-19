@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import moment from 'moment';
 
 class DayItem extends Component {
+  clickHandler() {
+    this.props.onClick(this.props.date);
+  }
+
   render() {
     let opts = {};
     if (this.props.disabled) {
@@ -15,7 +19,7 @@ class DayItem extends Component {
     }
 
     return (
-      <button className="col btn btn-light" {...opts}>{content}</button>
+      <button className="col btn btn-light" {...opts} onClick={() => this.clickHandler()}>{content}</button>
     );
   }
 }

@@ -1,20 +1,35 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { range } from '../../utility/ArrayHelper';
+import { range } from '../../../utility/ArrayHelper';
+import Navigation from './Navigation';
 import DayItem from './DayItem';
 
-class CalendarSelection extends Component {
-  test() {
-    console.log("test");
+class Selection extends Component {
+  constructor() {
+    super();
+    this.state = {
+      startDate: moment()
+    }
+
+    this.dateSelection = moment();
   }
 
-  isWeekend(date) {
-    return (date.isoWeekday() === 6 || date.isoWeekday() === 7);
+  modifyDate(modifier) {
+    if (modifier === 0) {
+      this.setState({startDate: moment()});
+    } else {
+      this.setState({startDate: moment(this.state.startDate).add(modifier, 'weeks')});
+    }
+  }
+
+  onSelectHandler(date) {
+    this.dateSelection = date;
+    this.props.onSelect(date);
   }
 
   getDynamicCalendar() {
     let calendar = {};
-    let startDate = moment();
+    let startDate = this.state.startDate;
 
     if (this.isWeekend(moment())) {
       startDate = moment().add(1, "weeks");
@@ -25,7 +40,7 @@ class CalendarSelection extends Component {
       return <DayItem key={"header_" + i} disabled={true}>{moment().isoWeekday(i+1).format("dd")}</DayItem>
     });
 
-    calendar.numbers = range(this.props.config.weeks).map(weekNumber => {
+    calendar.days = range(this.props.config.weeks).map(weekNumber => {
       return (
         <div key={"weeknumber_" + weekNumber} className="row">
           {
@@ -39,7 +54,7 @@ class CalendarSelection extends Component {
               }
               return true;
             }).map((date, i) => {
-              return <DayItem key={i} date={date}>{date.date()}</DayItem>;
+              return <DayItem key={i} date={date} onClick={this.onSelectHandler.bind(this)}>{date.date()}</DayItem>;
             })
           }
           <div className="w-100"></div>
@@ -48,6 +63,10 @@ class CalendarSelection extends Component {
     });
 
     return calendar;
+  }
+
+  isWeekend(date) {
+    return (date.isoWeekday() === 6 || date.isoWeekday() === 7);
   }
 
   getStaticCalendar() {
@@ -63,22 +82,18 @@ class CalendarSelection extends Component {
     }
 
     return (
-      <div id="calendar">
-        <div className="btn-group" role="group" aria-label="Basic example">
-          <button className="btn btn-light" onClick={this.test}><i className="material-icons">event</i></button>
-          <button className="btn btn-light" onClick={this.test}><i className="material-icons">keyboard_arrow_up</i></button>
-          <button className="btn btn-light" onClick={this.test}><i className="material-icons">keyboard_arrow_down</i></button>
-        </div>
+      <div>
+        <Navigation onClick={this.modifyDate.bind(this)} />
 
         <div className="row">
           {calendar.header}
           <div className="w-100"></div>
         </div>
 
-        {calendar.numbers}
+        {calendar.days}
       </div>
     );
   }
 }
 
-export default CalendarSelection;
+export default Selection;

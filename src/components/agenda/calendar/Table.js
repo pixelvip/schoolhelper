@@ -1,0 +1,29 @@
+import React, { Component } from 'react';
+//import moment from 'moment';
+
+class Table extends Component {
+  render() {
+    let content = [];
+
+    return (
+      <div>
+        <div className="row">
+      		<div className="col">
+      			<h5 id="selectionDayName">{this.props.date.format("dddd")}</h5>
+      		</div>
+      		<div className="col-auto">
+      			<h6 id="selectionDateDisplay" className="text-muted">{this.props.date.format("DD.MM.YYYY")}</h6>
+      		</div>
+      	</div>
+
+      	{(content.length > 0) ? (
+          content
+        ) : (
+          <p id="noDataText">No Events found.</p>
+        )}
+      </div>
+    );
+  }
+}
+
+export default Table;

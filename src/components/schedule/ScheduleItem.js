@@ -10,7 +10,7 @@ class ScheduleItem extends Component {
               <div className="col-auto mr-auto"><h4 className="card-title">{this.props.scheduleItem.subject}</h4></div>
               <div className="col-auto"><h6 className="card-subtitle mb-2 text-muted">{this.props.scheduleItem.startTime} - {this.props.scheduleItem.endTime}</h6></div>
             </div>
-        		<p className="card-text"><i className="material-icons">place</i> {this.props.scheduleItem.room}</p>
+        		<p className="card-text"><i className="material-icons" style={{fontSize: "16px"}}>place</i> {this.props.scheduleItem.room}</p>
         	</div>
         </div>
       </div>
@@ -19,5 +19,3 @@ class ScheduleItem extends Component {
 }
 
 export default ScheduleItem;
-
-//style="width: 20rem;"
