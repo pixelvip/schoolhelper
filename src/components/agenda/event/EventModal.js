@@ -1,33 +1,47 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import EventTypeSelect from './inputs/EventTypeSelect';
 import SubjectSelect from './inputs/SubjectSelect';
+import $ from 'jquery';
 
 class EventModal extends Component {
-  constructor() {
+  constructor(props) {
     super();
-    this.eventType = "";
-    this.subject = "";
+    this.state = {
+      eventType: "",
+      subject: "",
+      date: props.date.format("YYYY-MM-DD").toString()
+    }
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({date: props.date.format("YYYY-MM-DD").toString()});
   }
 
   submitHandler(e) {
     e.preventDefault();
-    this.props.newEventHandler({
-      eventType: this.eventType,
-  		subject: this.subject,
-  		title: this.refs.title.value,
-  		description: this.refs.description.value,
-  		//user: getUsername(),
-  		private: this.refs.private.checked
+    this.props.newEventHandler(moment(this.date.value), {
+      eventType: this.state.eventType,
+  		subject: this.state.subject,
+  		title: this.title.value,
+  		description: this.description.value,
+  		user: localStorage.getItem("username"),
+  		private: this.private.checked
     });
-    console.log(this.refs.date.value);
+    this.formRef.reset();
+    $("#eventModal").modal('hide');
   }
 
-  onChangeEventTypeHandler(e) {
-    this.eventType = e.target.value;
+  eventTypeChangedHandler(eventType) {
+    this.setState({eventType: eventType});
   }
 
-  onChangeSubjectHandler(e) {
-    this.subject = e.target.value;
+  subjectChangedHandler(subject) {
+    this.setState({subject: subject});
+  }
+
+  dateChangedHandler(e) {
+    this.setState({date: e.target.value});
   }
 
   render() {
@@ -43,33 +57,33 @@ class EventModal extends Component {
               </div>
               <div className="modal-body">
 
-                <form onSubmit={this.submitHandler.bind(this)} autoComplete="off">
+                <form onSubmit={this.submitHandler.bind(this)} autoComplete="off" ref={ref => this.formRef = ref}>
                   <div className="form-group row">
                     <label htmlFor="titleInput" className="col-sm-2 col-form-label">Title</label>
                     <div className="col-sm-10">
-                      <input type="text" className="form-control" ref="title" required />
+                      <input type="text" className="form-control" ref={ref => this.title = ref} required />
                     </div>
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="descriptionInput">Description</label>
-                    <textarea className="form-control" ref="description" rows="3"></textarea>
+                    <textarea className="form-control" ref={ref => this.description = ref} rows="3"></textarea>
                   </div>
 
                   <div className="form-group row">
                     <label htmlFor="dateInput" className="col-sm-2 col-form-label">Due Date</label>
                     <div className="col-sm-10">
-                      <input type="date" className="form-control" ref="date" required />
+                      <input type="date" className="form-control" onChange={this.dateChangedHandler.bind(this)} value={this.state.date} ref={ref => this.date = ref} required />
                     </div>
                   </div>
 
-                  <EventTypeSelect onChangeHandler={this.onChangeEventTypeHandler.bind(this)} />
+                  <EventTypeSelect changeHandler={this.eventTypeChangedHandler.bind(this)} />
 
-                  <SubjectSelect onChangeHandler={this.onChangeSubjectHandler.bind(this)} />
+                  <SubjectSelect changeHandler={this.subjectChangedHandler.bind(this)} />
 
                   <div className="form-check">
                     <label className="form-check-label">
-                      <input type="checkbox" className="form-check-input" ref="private" />
+                      <input type="checkbox" className="form-check-input" ref={ref => this.private = ref} />
                       private event
                     </label>
                   </div>

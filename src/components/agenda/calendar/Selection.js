@@ -8,6 +8,11 @@ class Selection extends Component {
   constructor() {
     super();
     this.state = {
+      config: {
+        dynamic: true,
+        weeks: 4,
+        weekends: false
+      },
       startDate: moment()
     }
 
@@ -36,11 +41,11 @@ class Selection extends Component {
     }
     startDate.startOf('isoWeek');
 
-    calendar.header = range(this.props.config.weekends ? 7 : 5).map(i => {
+    calendar.header = range(this.state.config.weekends ? 7 : 5).map(i => {
       return <DayItem key={"header_" + i} disabled={true}>{moment().isoWeekday(i+1).format("dd")}</DayItem>
     });
 
-    calendar.days = range(this.props.config.weeks).map(weekNumber => {
+    calendar.days = range(this.state.config.weeks).map(weekNumber => {
       return (
         <div key={"weeknumber_" + weekNumber} className="row">
           {
@@ -49,12 +54,12 @@ class Selection extends Component {
               newDate.add(dayNumber, "days");
               return newDate;
             }).filter(date => {
-              if (!this.props.config.weekends) {
+              if (!this.state.config.weekends) {
                 return !this.isWeekend(date);
               }
               return true;
             }).map((date, i) => {
-              return <DayItem key={i} date={date} onClick={this.onSelectHandler.bind(this)}>{date.date()}</DayItem>;
+              return <DayItem key={i} date={date} selected={this.dateSelection.isSame(date, "day")} clickHandler={this.onSelectHandler.bind(this)}>{date.date()}</DayItem>;
             })
           }
           <div className="w-100"></div>
@@ -75,7 +80,7 @@ class Selection extends Component {
 
   render() {
     let calendar;
-    if (this.props.config.dynamic) {
+    if (this.state.config.dynamic) {
       calendar = this.getDynamicCalendar();
     } else {
       calendar = this.getStaticCalendar();

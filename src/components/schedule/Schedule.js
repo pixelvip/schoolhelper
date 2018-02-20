@@ -9,8 +9,6 @@ class Schedule extends Component {
     this.state = {
       scheduleItems: []
     }
-
-    this.db = null;
   }
 
   componentDidMount() {

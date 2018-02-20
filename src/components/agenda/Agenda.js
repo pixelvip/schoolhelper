@@ -10,15 +10,9 @@ class Agenda extends Component {
   constructor() {
     super();
     this.state = {
-      config: {
-        dynamic: true,
-        weeks: 4,
-        weekends: false
-      },
-      dateSelection: moment()
+      dateSelection: moment(),
+      eventList: []
     }
-
-    this.db = null;
   }
 
   componentDidMount() {
@@ -28,10 +22,12 @@ class Agenda extends Component {
       live: true,
       retry: true
     }).on('change', function (info) {
-      // handle change
+      this.loadEventList(this.state.dateSelection);
     }).on('error', function (err) {
       console.log(err);
     });
+
+    this.loadEventList(this.state.dateSelection);
   }
 
   componentWillUnmount() {
@@ -40,17 +36,47 @@ class Agenda extends Component {
 
   onSelectHandler(date) {
     this.setState({dateSelection: date});
+    this.loadEventList(date);
+  }
+
+  loadEventList(date) {
+    this.db.get(date.format("YYYY-MM-DD").toString()).then(function (doc) {
+      console.log(doc);
+      this.setState({eventList: doc.events});
+
+    }.bind(this)).catch(function (err) {
+      this.setState({eventList: []});
+    }.bind(this));
+  }
+
+  newEventHandler(date, newEvent) {
+    let formattedDate = date.format("YYYY-MM-DD").toString();
+    let eventDoc = {};
+    this.db.get(formattedDate).then(function (doc) {
+      eventDoc = doc;
+
+    }).catch(function (err) {
+      eventDoc = {
+    		_id: formattedDate,
+    		events: [],
+    	}
+
+    }).then(function () {
+      eventDoc.events.push(newEvent);
+      this.db.put(eventDoc);
+      this.loadEventList(this.state.dateSelection);
+    }.bind(this));
   }
 
   render() {
     return (
       <div className="container">
-        <Selection config={this.state.config} onSelect={this.onSelectHandler.bind(this)} />
+        <Selection onSelect={this.onSelectHandler.bind(this)} />
         <br />
-        <Table date={this.state.dateSelection} />
+        <Table date={this.state.dateSelection} eventList={this.state.eventList} />
 
         <AddEvent />
-        <EventModal date={this.dateSelection} event={this.selectedEvent} />
+        <EventModal date={this.state.dateSelection} event={this.selectedEvent} newEventHandler={this.newEventHandler.bind(this)} />
       </div>
     );
   }

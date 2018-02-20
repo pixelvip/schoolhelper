@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-//import moment from 'moment';
+import TableItem from './TableItem';
 
 class Table extends Component {
   render() {
-    let content = [];
-
     return (
       <div>
         <div className="row">
@@ -16,8 +14,10 @@ class Table extends Component {
       		</div>
       	</div>
 
-      	{(content.length > 0) ? (
-          content
+      	{(this.props.eventList.length > 0) ? (
+          this.props.eventList.map((event, i) =>
+            <TableItem key={i} event={event} />
+        )
         ) : (
           <p id="noDataText">No Events found.</p>
         )}

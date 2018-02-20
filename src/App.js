@@ -15,6 +15,8 @@ const App = () => (
         <Route path="/schedule" component={Schedule} />
         <Route path="/agenda" component={Agenda} />
       </div>
+
+      <div style={{marginBottom: "70px"}}/>
     </div>
   </Router>
 );

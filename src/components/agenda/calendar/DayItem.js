@@ -3,7 +3,7 @@ import moment from 'moment';
 
 class DayItem extends Component {
   clickHandler() {
-    this.props.onClick(this.props.date);
+    this.props.clickHandler(this.props.date);
   }
 
   render() {
@@ -19,7 +19,7 @@ class DayItem extends Component {
     }
 
     return (
-      <button className="col btn btn-light" {...opts} onClick={() => this.clickHandler()}>{content}</button>
+      <button className={this.props.selected ? "col btn btn-secondary" : "col btn btn-light"} {...opts} onClick={this.clickHandler.bind(this)}>{content}</button>
     );
   }
 }
