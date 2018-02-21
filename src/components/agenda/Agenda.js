@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
+import $ from 'jquery';
 import Selection from './calendar/Selection';
 import Table from './calendar/Table';
 import AddEvent from './event/AddEvent';
@@ -21,11 +22,12 @@ class Agenda extends Component {
     this.db.sync('http://mischka.i-t.me:5984/bms1b_agenda', {
       live: true,
       retry: true
-    }).on('change', function (info) {
-      this.loadEventList(this.state.dateSelection);
-    }).on('error', function (err) {
-      console.log(err);
-    });
+    }).on('change', info =>
+      this.loadEventList(this.state.dateSelection)
+
+    ).on('error', err =>
+      console.log(err)
+    );
 
     this.loadEventList(this.state.dateSelection);
   }
@@ -40,32 +42,39 @@ class Agenda extends Component {
   }
 
   loadEventList(date) {
-    this.db.get(date.format("YYYY-MM-DD").toString()).then(function (doc) {
-      console.log(doc);
-      this.setState({eventList: doc.events});
-
-    }.bind(this)).catch(function (err) {
-      this.setState({eventList: []});
-    }.bind(this));
+    this.db.get(date.format("YYYY-MM-DD").toString()).then(doc =>
+      this.setState({eventList: doc.events})
+    ).catch(err =>
+      this.setState({eventList: []})
+    );
   }
 
   newEventHandler(date, newEvent) {
     let formattedDate = date.format("YYYY-MM-DD").toString();
     let eventDoc = {};
-    this.db.get(formattedDate).then(function (doc) {
-      eventDoc = doc;
+    this.db.get(formattedDate).then(doc =>
+      eventDoc = doc
 
-    }).catch(function (err) {
+    ).catch(err =>
       eventDoc = {
     		_id: formattedDate,
     		events: [],
     	}
 
-    }).then(function () {
+    ).then(() => {
       eventDoc.events.push(newEvent);
       this.db.put(eventDoc);
       this.loadEventList(this.state.dateSelection);
-    }.bind(this));
+    });
+  }
+
+  eventEditHandler(event) {
+    this.selectedEvent = event;
+    $("#eventModal").modal('show');
+  }
+
+  eventShowHandler(event) {
+    console.log(event);
   }
 
   render() {
@@ -73,10 +82,17 @@ class Agenda extends Component {
       <div className="container">
         <Selection onSelect={this.onSelectHandler.bind(this)} />
         <br />
-        <Table date={this.state.dateSelection} eventList={this.state.eventList} />
+        <Table
+          date={this.state.dateSelection}
+          eventList={this.state.eventList}
+          eventEditHandler={this.eventEditHandler.bind(this)}
+          eventShowHandler={this.eventShowHandler.bind(this)} />
 
         <AddEvent />
-        <EventModal date={this.state.dateSelection} event={this.selectedEvent} newEventHandler={this.newEventHandler.bind(this)} />
+        <EventModal
+          date={this.state.dateSelection}
+          event={this.selectedEvent}
+          newEventHandler={this.newEventHandler.bind(this)} />
       </div>
     );
   }

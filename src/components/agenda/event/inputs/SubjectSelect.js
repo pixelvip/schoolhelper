@@ -18,17 +18,17 @@ class SubjectSelect extends Component {
       retry: true
     });
 
-    this.db.get("Subjects").then(function (doc) {
+    this.db.get("Subjects").then(doc => {
       this.setState({
         subjects: doc.subjects,
         subjectSelection: doc.subjects[0].name
       });
 
-    }.bind(this)).catch(function (err) {
-      console.log(err);
-    });
+    }).catch(err =>
+      console.log(err)
+    );
 
-    this.db.get("Lessons").then(function (doc) {
+    this.db.get("Lessons").then(doc => {
       let day = doc.days.find(day => day.day === moment().isoWeekday());
       if (day != null) {
         let nowTime = moment().format("HH:mm");
@@ -42,13 +42,12 @@ class SubjectSelect extends Component {
   			}
       }
 
-    }.bind(this)).catch(function (err) {
-      console.log(err);
+    }).catch(err =>
+      console.log(err)
 
-    }).then(function () {
-      this.props.changeHandler(this.state.subjectSelection);
-
-    }.bind(this));
+    ).then(() =>
+      this.props.changeHandler(this.state.subjectSelection)
+    );
   }
 
   componentWillUnmount() {

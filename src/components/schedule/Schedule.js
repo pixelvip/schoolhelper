@@ -18,7 +18,7 @@ class Schedule extends Component {
       retry: true
     });
 
-    this.db.get("Lessons").then(function (doc) {
+    this.db.get("Lessons").then(doc => {
       let dayArray = doc.days;
       let day = dayArray.find(dayObject => dayObject.day === moment().isoWeekday());
       if (moment().isAfter(moment(day.lessons[day.lessons.length -1].endTime, "HH:mm"))) {
@@ -29,9 +29,9 @@ class Schedule extends Component {
       }
       this.setState({scheduleItems: day.lessons});
 
-    }.bind(this)).catch(function (err) {
-      console.log(err);
-    });
+    }).catch(err =>
+      console.log(err)
+    );
   }
 
   componentWillUnmount() {

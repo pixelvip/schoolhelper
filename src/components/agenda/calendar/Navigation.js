@@ -11,7 +11,7 @@ class Navigation extends Component {
     );
 
     return (
-      <div className="btn-group" role="group" aria-label="Basic example">
+      <div className="btn-group" role="group" aria-label="Basic example" style={{marginBottom: "5px"}}>
         {content}
       </div>
     )
