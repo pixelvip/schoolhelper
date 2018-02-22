@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
-import $ from 'jquery';
 import Selection from './calendar/Selection';
 import Table from './calendar/Table';
 import AddEvent from './event/AddEvent';
@@ -12,14 +11,15 @@ class Agenda extends Component {
     super();
     this.state = {
       dateSelection: moment(),
-      eventList: []
+      eventList: [],
+      editModalOpen: false
     }
   }
 
   componentDidMount() {
     this.db = new PouchDB('bms1b_agenda');
 
-    this.db.sync('http://mischka.i-t.me:5984/bms1b_agenda', {
+    this.db.sync(process.env.REACT_APP_COUCHDB + 'bms1b_agenda', {
       live: true,
       retry: true
     }).on('change', info =>
@@ -36,7 +36,7 @@ class Agenda extends Component {
     this.db.close();
   }
 
-  onSelectHandler(date) {
+  selectionHandler(date) {
     this.setState({dateSelection: date});
     this.loadEventList(date);
   }
@@ -68,9 +68,14 @@ class Agenda extends Component {
     });
   }
 
+  eventNewHandler() {
+    this.selectedEvent = null;
+    this.setState({editModalOpen: true});
+  }
+
   eventEditHandler(event) {
     this.selectedEvent = event;
-    $("#eventModal").modal('show');
+    this.setState({editModalOpen: true});
   }
 
   eventShowHandler(event) {
@@ -80,7 +85,7 @@ class Agenda extends Component {
   render() {
     return (
       <div className="container">
-        <Selection onSelect={this.onSelectHandler.bind(this)} />
+        <Selection onSelect={this.selectionHandler.bind(this)} />
         <br />
         <Table
           date={this.state.dateSelection}
@@ -88,8 +93,11 @@ class Agenda extends Component {
           eventEditHandler={this.eventEditHandler.bind(this)}
           eventShowHandler={this.eventShowHandler.bind(this)} />
 
-        <AddEvent />
+        <AddEvent
+          onClick={this.eventNewHandler.bind(this)} />
         <EventModal
+          open={this.state.editModalOpen}
+          closeHandler={() => this.setState({editModalOpen: false})}
           date={this.state.dateSelection}
           event={this.selectedEvent}
           newEventHandler={this.newEventHandler.bind(this)} />

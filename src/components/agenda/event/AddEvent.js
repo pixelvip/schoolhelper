@@ -4,7 +4,7 @@ class AddEvent extends Component {
   render() {
     return (
       <div>
-        <button type="button" className="addButton btn btn-light" data-toggle="modal" data-target="#eventModal">
+        <button type="button" className="addButton btn btn-light" onClick={this.props.onClick}>
           <span className="material-icons md-48">add</span>
         </button>
       </div>

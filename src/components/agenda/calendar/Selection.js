@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import moment from 'moment';
-import { range } from '../../../utility/ArrayHelper';
+import { range } from 'utility/functions/ArrayHelper';
 import Navigation from './Navigation';
 import DayItem from './DayItem';
 

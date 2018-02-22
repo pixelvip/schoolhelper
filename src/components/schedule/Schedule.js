@@ -13,7 +13,7 @@ class Schedule extends Component {
 
   componentDidMount() {
     this.db = new PouchDB('bms1b');
-    this.db.replicate.from('http://mischka.i-t.me:5984/bms1b', {
+    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
       live: true,
       retry: true
     });
