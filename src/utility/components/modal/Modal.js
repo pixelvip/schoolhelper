@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import $ from 'jquery';
-import Header from 'utility/components/modal/Header';
-import Body from 'utility/components/modal/Body';
-import Footer from 'utility/components/modal/Footer';
+import Header from './Header';
+import Body from './Body';
+import Footer from './Footer';
 
 class Modal extends Component {
   static types = Object.freeze({

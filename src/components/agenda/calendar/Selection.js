@@ -29,16 +29,24 @@ class Selection extends Component {
   }
 
   selectHandler(date) {
+    if (!this.state.config.weekends && this.isWeekend(date)) {
+      date.add(1, "week").startOf("isoWeek");
+    }
+
     this.dateSelection = date;
     this.props.onSelect(date);
   }
 
+  componentDidMount() {
+    this.selectHandler(moment());
+  }
+
   getDynamicCalendar() {
     let calendar = {};
-    let startDate = this.state.startDate;
+    let startDate = moment(this.state.startDate);
 
-    if (this.isWeekend(moment())) {
-      startDate = moment().add(1, "weeks");
+    if (this.isWeekend(moment()) && !this.state.config.weekends) {
+      startDate.add(1, "weeks");
     }
     startDate.startOf('isoWeek');
 

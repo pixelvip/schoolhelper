@@ -14,11 +14,8 @@ class Agenda extends Component {
       eventList: [],
       editModalOpen: false
     }
-  }
 
-  componentDidMount() {
     this.db = new PouchDB('bms1b_agenda');
-
     this.db.sync(process.env.REACT_APP_COUCHDB + 'bms1b_agenda', {
       live: true,
       retry: true
@@ -28,7 +25,9 @@ class Agenda extends Component {
     ).on('error', err =>
       console.log(err)
     );
+  }
 
+  componentDidMount() {
     this.loadEventList(this.state.dateSelection);
   }
 
@@ -46,6 +45,33 @@ class Agenda extends Component {
       this.setState({eventList: doc.events})
     ).catch(err =>
       this.setState({eventList: []})
+    );
+  }
+
+  saveEventHandler(date, event) {
+    let removeEvent = false;
+
+    if (date !== this.state.dateSelection) {
+      this.newEventHandler(date, event);
+      removeEvent = true;
+    }
+
+    this.db.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(doc => {
+      let eventList = doc.events;
+      let docEvent = eventList.find(docEvent => docEvent.id === event.id);
+      let index = eventList.indexOf(docEvent);
+
+      if (removeEvent) {
+        eventList.splice(index, 1);
+      } else {
+        eventList[index] = event;
+      }
+
+      this.db.put(doc);
+      this.loadEventList(this.state.dateSelection);
+
+    }).catch(err =>
+      console.log(err)
     );
   }
 
@@ -100,7 +126,8 @@ class Agenda extends Component {
           closeHandler={() => this.setState({editModalOpen: false})}
           date={this.state.dateSelection}
           event={this.selectedEvent}
-          newEventHandler={this.newEventHandler.bind(this)} />
+          newEventHandler={this.newEventHandler.bind(this)}
+          saveEventHandler={this.saveEventHandler.bind(this)} />
       </div>
     );
   }

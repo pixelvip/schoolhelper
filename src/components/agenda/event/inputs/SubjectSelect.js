@@ -9,15 +9,44 @@ class SubjectSelect extends Component {
       subjects: [],
       subjectSelection: ""
     }
+
+    this.db = new PouchDB('bms1b');
+    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
+      live: false,
+      retry: false
+    });
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({subjectSelection: props.value});
+
+    if (props.value === "search") {
+      this.db.get("Lessons").then(doc => {
+        let day = doc.days.find(day => day.day === moment().isoWeekday());
+        if (day != null) {
+          let nowTime = moment().format("HH:mm");
+    			let tenMinutesBeforeNow = moment(moment().subtract(10, "minutes")).format("HH:mm");
+
+          let subject = day.lessons.find(lessons =>
+            lessons.startTime <= nowTime && tenMinutesBeforeNow <= lessons.endTime
+          );
+    			if (subject) {
+            this.setState({subjectSelection: subject.name});
+    			}
+        }
+
+      }).catch(err =>
+        console.log(err)
+
+      ).then(() => {
+        if (this.state.subjectSelection !== "search") {
+          this.props.changeHandler(this.state.subjectSelection)
+        }
+      });
+    }
   }
 
   componentDidMount() {
-    this.db = new PouchDB('bms1b');
-    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
-      live: true,
-      retry: true
-    });
-
     this.db.get("Subjects").then(doc => {
       this.setState({
         subjects: doc.subjects,
@@ -26,27 +55,6 @@ class SubjectSelect extends Component {
 
     }).catch(err =>
       console.log(err)
-    );
-
-    this.db.get("Lessons").then(doc => {
-      let day = doc.days.find(day => day.day === moment().isoWeekday());
-      if (day != null) {
-        let nowTime = moment().format("HH:mm");
-  			let tenMinutesBeforeNow = moment(moment().subtract(10, "minutes")).format("HH:mm");
-
-        let subject = day.lessons.find(lessons =>
-          lessons.startTime <= nowTime && tenMinutesBeforeNow <= lessons.endTime
-        );
-  			if (subject) {
-          this.setState({subjectSelection: subject.name});
-  			}
-      }
-
-    }).catch(err =>
-      console.log(err)
-
-    ).then(() =>
-      this.props.changeHandler(this.state.subjectSelection)
     );
   }
 

@@ -9,18 +9,23 @@ class Schedule extends Component {
     this.state = {
       scheduleItems: []
     }
-  }
 
-  componentDidMount() {
     this.db = new PouchDB('bms1b');
     this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
       live: true,
       retry: true
     });
+  }
 
+  componentDidMount() {
     this.db.get("Lessons").then(doc => {
       let dayArray = doc.days;
-      let day = dayArray.find(dayObject => dayObject.day === moment().isoWeekday());
+
+      let day = dayArray.find(dayObject => dayObject.day >= moment().isoWeekday());
+      if (day === undefined) {
+        day = dayArray.find(dayObject => dayObject.day >= 0);
+      }
+
       if (moment().isAfter(moment(day.lessons[day.lessons.length -1].endTime, "HH:mm"))) {
         day = dayArray.find(dayObject => dayObject.day > moment().isoWeekday());
         if (day == null) {
