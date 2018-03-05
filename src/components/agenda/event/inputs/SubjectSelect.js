@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
+import { classDB } from 'data/Database';
 
 class SubjectSelect extends Component {
   constructor() {
@@ -9,19 +9,13 @@ class SubjectSelect extends Component {
       subjects: [],
       subjectSelection: ""
     }
-
-    this.db = new PouchDB('bms1b');
-    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
-      live: false,
-      retry: false
-    });
   }
 
   componentWillReceiveProps(props) {
     this.setState({subjectSelection: props.value});
 
     if (props.value === "search") {
-      this.db.get("Lessons").then(doc => {
+      classDB.get("Lessons").then(doc => {
         let day = doc.days.find(day => day.day === moment().isoWeekday());
         if (day != null) {
           let nowTime = moment().format("HH:mm");
@@ -47,7 +41,7 @@ class SubjectSelect extends Component {
   }
 
   componentDidMount() {
-    this.db.get("Subjects").then(doc => {
+    classDB.get("Subjects").then(doc => {
       this.setState({
         subjects: doc.subjects,
         subjectSelection: doc.subjects[0].name
@@ -56,10 +50,6 @@ class SubjectSelect extends Component {
     }).catch(err =>
       console.log(err)
     );
-  }
-
-  componentWillUnmount() {
-    this.db.close();
   }
 
   changeHandler(e) {

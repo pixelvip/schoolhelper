@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
+import { agendaDB, agendaRemoteDB } from 'data/Database';
 
 class DayItem extends Component {
   constructor() {
@@ -9,14 +9,12 @@ class DayItem extends Component {
       events: false
     }
 
-    this.db = new PouchDB('bms1b_agenda');
-    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b_agenda', {
+    agendaDB.changes({
+      since: 'now',
       live: true,
-      retry: true
-    }).on('change', info =>
+      include_docs: false
+    }).on('change', change =>
       this.checkIfEventAvailable()
-    ).on('error', err =>
-      console.log(err)
     );
   }
 
@@ -25,14 +23,14 @@ class DayItem extends Component {
   }
 
   checkIfEventAvailable() {
-    console.log("test");
+    agendaDB.replicate.from(agendaRemoteDB).then(() => this.loadEvents());
+    this.loadEvents();
+  }
 
-    this.db.get(moment(this.props.date).format("YYYY-MM-DD").toString()).then(doc => {
-      if (doc.events.length > 0) {
-        this.setState({events: true});
-      } else {
-        this.setState({events: false});
-      }
+  loadEvents() {
+    agendaDB.get(moment(this.props.date).format("YYYY-MM-DD").toString()).then(doc => {
+      this.setState({events: doc.events.length > 0});
+
     }).catch(err =>
       this.setState({events: false})
     );
@@ -40,10 +38,6 @@ class DayItem extends Component {
 
   clickHandler() {
     this.props.clickHandler(this.props.date);
-  }
-
-  componentWillUnmount() {
-    this.db.close();
   }
 
   render() {
@@ -69,7 +63,7 @@ class DayItem extends Component {
       right: 0
     }
 
-    let eventIdenticator = this.state.events ? <div style={eventStyle} /> : null;
+    let eventIdenticator = this.state.events ? <div style={eventStyle} /> : <div />;
 
     return (
       <button className={this.props.selected ? "col btn btn-secondary" : "col btn btn-light"} {...opts} onClick={this.clickHandler.bind(this)}>

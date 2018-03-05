@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import ScheduleItem from './ScheduleItem';
-import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
+import { classDB } from 'data/Database';
+import ScheduleItem from './ScheduleItem';
 
 class Schedule extends Component {
   constructor() {
@@ -9,16 +9,10 @@ class Schedule extends Component {
     this.state = {
       scheduleItems: []
     }
-
-    this.db = new PouchDB('bms1b');
-    this.db.replicate.from(process.env.REACT_APP_COUCHDB + 'bms1b', {
-      live: true,
-      retry: true
-    });
   }
 
   componentDidMount() {
-    this.db.get("Lessons").then(doc => {
+    classDB.get("Lessons").then(doc => {
       let dayArray = doc.days;
 
       let day = dayArray.find(dayObject => dayObject.day >= moment().isoWeekday());
@@ -37,10 +31,6 @@ class Schedule extends Component {
     }).catch(err =>
       console.log(err)
     );
-  }
-
-  componentWillUnmount() {
-    this.db.close();
   }
 
   render() {

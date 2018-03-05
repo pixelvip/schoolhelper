@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import PouchDB from 'pouchdb-browser';
 import moment from 'moment';
+import { agendaDB } from 'data/Database';
 import Selection from './calendar/Selection';
 import Table from './calendar/Table';
 import AddEvent from './event/AddEvent';
@@ -15,24 +15,17 @@ class Agenda extends Component {
       editModalOpen: false
     }
 
-    this.db = new PouchDB('bms1b_agenda');
-    this.db.sync(process.env.REACT_APP_COUCHDB + 'bms1b_agenda', {
-      live: true,
-      retry: true
-    }).on('change', info =>
-      this.loadEventList(this.state.dateSelection)
-
-    ).on('error', err =>
-      console.log(err)
-    );
+    // agendaDB.changes({
+    //   since: 'now',
+    //   live: true,
+    //   include_docs: false
+    // }).on('change', change =>
+    //   this.loadEventList(this.state.dateSelection)
+    // );
   }
 
   componentDidMount() {
     this.loadEventList(this.state.dateSelection);
-  }
-
-  componentWillUnmount() {
-    this.db.close();
   }
 
   selectionHandler(date) {
@@ -41,7 +34,7 @@ class Agenda extends Component {
   }
 
   loadEventList(date) {
-    this.db.get(date.format("YYYY-MM-DD").toString()).then(doc =>
+    agendaDB.get(date.format("YYYY-MM-DD").toString()).then(doc =>
       this.setState({eventList: doc.events})
     ).catch(err =>
       this.setState({eventList: []})
@@ -49,14 +42,10 @@ class Agenda extends Component {
   }
 
   saveEventHandler(date, event) {
-    let removeEvent = false;
+    let removeEvent = (date !== this.state.dateSelection);
+    let docList = [];
 
-    if (date !== this.state.dateSelection) {
-      this.newEventHandler(date, event);
-      removeEvent = true;
-    }
-
-    this.db.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(doc => {
+    agendaDB.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(doc => {
       let eventList = doc.events;
       let docEvent = eventList.find(docEvent => docEvent.id === event.id);
       let index = eventList.indexOf(docEvent);
@@ -67,21 +56,47 @@ class Agenda extends Component {
         eventList[index] = event;
       }
 
-      this.db.put(doc);
-      this.loadEventList(this.state.dateSelection);
+      docList.push(doc);
+
+      if (removeEvent) {
+        let formattedDate = date.format("YYYY-MM-DD").toString();
+        let targetDoc = [];
+
+        return agendaDB.get(formattedDate).then(doc =>
+          targetDoc = doc
+
+        ).catch(err => {
+          targetDoc = {
+        		_id: formattedDate,
+        		events: [],
+        	}
+
+        }).then(() => {
+          targetDoc.events.push(event);
+          docList.push(targetDoc);
+        });
+      }
 
     }).catch(err =>
       console.log(err)
-    );
+
+    ).then(() => {
+      agendaDB.bulkDocs(docList).catch(err => console.log(err));
+      if (removeEvent) {
+        this.selectionHandler(date);
+      } else {
+        this.loadEventList(this.state.dateSelection);
+      }
+    });
   }
 
   newEventHandler(date, newEvent) {
     let formattedDate = date.format("YYYY-MM-DD").toString();
     let eventDoc = {};
-    this.db.get(formattedDate).then(doc =>
+    agendaDB.get(formattedDate).then(doc =>
       eventDoc = doc
 
-    ).catch(err =>
+    ).catch(() =>
       eventDoc = {
     		_id: formattedDate,
     		events: [],
@@ -89,7 +104,7 @@ class Agenda extends Component {
 
     ).then(() => {
       eventDoc.events.push(newEvent);
-      this.db.put(eventDoc);
+      agendaDB.put(eventDoc);
       this.loadEventList(this.state.dateSelection);
     });
   }
@@ -111,7 +126,9 @@ class Agenda extends Component {
   render() {
     return (
       <div className="container">
-        <Selection onSelect={this.selectionHandler.bind(this)} />
+        <Selection
+          dateSelection={this.state.dateSelection}
+          onSelect={this.selectionHandler.bind(this)} />
         <br />
         <Table
           date={this.state.dateSelection}

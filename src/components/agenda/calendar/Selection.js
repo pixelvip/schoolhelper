@@ -15,8 +15,6 @@ class Selection extends Component {
       },
       startDate: moment()
     }
-
-    this.dateSelection = moment();
   }
 
   modifyDate(modifier) {
@@ -33,7 +31,6 @@ class Selection extends Component {
       date.add(1, "week").startOf("isoWeek");
     }
 
-    this.dateSelection = date;
     this.props.onSelect(date);
   }
 
@@ -68,7 +65,7 @@ class Selection extends Component {
               }
               return true;
             }).map((date, i) => {
-              return <DayItem key={i} date={date} selected={this.dateSelection.isSame(date, "day")} clickHandler={this.selectHandler.bind(this)}>{date.date()}</DayItem>;
+              return <DayItem key={i} date={date} selected={this.props.dateSelection.isSame(date, "day")} clickHandler={this.selectHandler.bind(this)}>{date.date()}</DayItem>;
             })
           }
           <div className="w-100"></div>
