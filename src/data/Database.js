@@ -26,7 +26,7 @@ function getAgendaDB() {
   }).on('error', err =>
     console.log(err)
   );
-  db.setMaxListeners(20);
+  db.setMaxListeners(130);
   return db;
 }
 export let agendaDB = getAgendaDB();

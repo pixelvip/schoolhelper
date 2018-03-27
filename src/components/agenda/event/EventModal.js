@@ -20,7 +20,6 @@ class EventModal extends Component {
 
     if (this.props.event) {
       let event = this.props.event;
-      console.log(event);
 
       this.title.value = event.title;
       this.description.value = event.description;
@@ -79,10 +78,10 @@ class EventModal extends Component {
     return (
       <Modal
         id="eventModal"
+        type={Modal.types.CancelSave}
         open={this.props.open}
         openHandler={this.openHandler.bind(this)}
         closeHandler={this.props.closeHandler}
-        type={Modal.types.CancelSave}
         saveHandler={this.submitHandler.bind(this)} >
           <div>
             <h5 className="modal-title" id="eventModalLabel">New Event</h5>

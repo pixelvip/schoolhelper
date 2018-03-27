@@ -24,9 +24,12 @@ class SubjectSelect extends Component {
           let subject = day.lessons.find(lessons =>
             lessons.startTime <= nowTime && tenMinutesBeforeNow <= lessons.endTime
           );
+
     			if (subject) {
-            this.setState({subjectSelection: subject.name});
-    			}
+            this.setState({subjectSelection: subject.subject});
+    			} else {
+            this.setState({subjectSelection: this.state.subjects[0].subject});
+          }
         }
 
       }).catch(err =>

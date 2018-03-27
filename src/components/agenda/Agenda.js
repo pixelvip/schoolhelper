@@ -5,44 +5,50 @@ import Selection from './calendar/Selection';
 import Table from './calendar/Table';
 import AddEvent from './event/AddEvent';
 import EventModal from './event/EventModal';
+import ShowEventModal from './event/ShowEventModal';
 
 class Agenda extends Component {
   constructor() {
     super();
     this.state = {
       dateSelection: moment(),
-      eventList: [],
-      editModalOpen: false
+      currentEventList: [],
+      editModalOpen: false,
+      showModalOpen: false
     }
 
-    // agendaDB.changes({
-    //   since: 'now',
-    //   live: true,
-    //   include_docs: false
-    // }).on('change', change =>
-    //   this.loadEventList(this.state.dateSelection)
-    // );
+    this.selectedEvent = null;
+
+    agendaDB.changes({
+      since: 'now',
+      live: true,
+      include_docs: false
+    }).on('change', change => {
+      if (change.id === this.state.dateSelection.format("YYYY-MM-DD").toString()) {
+        this.loadCurrentEventList(this.state.dateSelection);
+      }
+    });
   }
 
   componentDidMount() {
-    this.loadEventList(this.state.dateSelection);
+    this.loadCurrentEventList(this.state.dateSelection);
   }
 
   selectionHandler(date) {
     this.setState({dateSelection: date});
-    this.loadEventList(date);
+    this.loadCurrentEventList(date);
   }
 
-  loadEventList(date) {
+  loadCurrentEventList(date) {
     agendaDB.get(date.format("YYYY-MM-DD").toString()).then(doc =>
-      this.setState({eventList: doc.events})
+      this.setState({currentEventList: doc.events})
     ).catch(err =>
-      this.setState({eventList: []})
+      this.setState({currentEventList: []})
     );
   }
 
   saveEventHandler(date, event) {
-    let removeEvent = (date !== this.state.dateSelection);
+    let removeEvent = (! date.isSame(this.state.dateSelection, 'day'));
     let docList = [];
 
     agendaDB.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(doc => {
@@ -85,7 +91,7 @@ class Agenda extends Component {
       if (removeEvent) {
         this.selectionHandler(date);
       } else {
-        this.loadEventList(this.state.dateSelection);
+        this.loadCurrentEventList(this.state.dateSelection);
       }
     });
   }
@@ -105,22 +111,39 @@ class Agenda extends Component {
     ).then(() => {
       eventDoc.events.push(newEvent);
       agendaDB.put(eventDoc);
-      this.loadEventList(this.state.dateSelection);
+      this.loadCurrentEventList(this.state.dateSelection);
     });
   }
 
+  deleteEventHandler(event) {
+    agendaDB.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(eventDoc => {
+      let eventList = eventDoc.events;
+      let eventToDelete = eventList.find(docEvent => docEvent.id === event.id);
+      eventList.splice(eventList.indexOf(eventToDelete), 1);
+      agendaDB.put(eventDoc);
+      this.loadCurrentEventList(this.state.dateSelection);
+
+    }).catch(err =>
+      console.log(err)
+    );
+  }
+
+  //Open Event Modal for New Event
   eventNewHandler() {
     this.selectedEvent = null;
     this.setState({editModalOpen: true});
   }
 
+  //Open Event Modal for Edit Event
   eventEditHandler(event) {
     this.selectedEvent = event;
     this.setState({editModalOpen: true});
   }
 
+  //Show Event Info (plus deletion)
   eventShowHandler(event) {
-    console.log(event);
+    this.selectedEvent = event;
+    this.setState({showModalOpen: true});
   }
 
   render() {
@@ -132,19 +155,26 @@ class Agenda extends Component {
         <br />
         <Table
           date={this.state.dateSelection}
-          eventList={this.state.eventList}
+          eventList={this.state.currentEventList}
           eventEditHandler={this.eventEditHandler.bind(this)}
           eventShowHandler={this.eventShowHandler.bind(this)} />
 
         <AddEvent
           onClick={this.eventNewHandler.bind(this)} />
+
         <EventModal
           open={this.state.editModalOpen}
           closeHandler={() => this.setState({editModalOpen: false})}
-          date={this.state.dateSelection}
-          event={this.selectedEvent}
           newEventHandler={this.newEventHandler.bind(this)}
-          saveEventHandler={this.saveEventHandler.bind(this)} />
+          saveEventHandler={this.saveEventHandler.bind(this)}
+          date={this.state.dateSelection}
+          event={this.selectedEvent} />
+
+        <ShowEventModal
+          open={this.state.showModalOpen}
+          closeHandler={() => this.setState({showModalOpen: false})}
+          deleteEventHandler={this.deleteEventHandler.bind(this)}
+          event={this.selectedEvent} />
       </div>
     );
   }

@@ -3,28 +3,38 @@ import moment from 'moment';
 import { agendaDB, agendaRemoteDB } from 'data/Database';
 
 class DayItem extends Component {
-  constructor() {
+  constructor(props) {
     super();
     this.state = {
       events: false
     }
 
-    agendaDB.changes({
-      since: 'now',
-      live: true,
-      include_docs: false
-    }).on('change', change =>
-      this.checkIfEventAvailable()
-    );
+    if (! props.disabled) {
+      agendaDB.changes({
+        since: 'now',
+        live: true,
+        include_docs: false
+      }).on('change', change =>
+        this.checkIfEventAvailable(change)
+      );
+    }
   }
 
   componentDidMount() {
     this.checkIfEventAvailable();
   }
 
-  checkIfEventAvailable() {
-    agendaDB.replicate.from(agendaRemoteDB).then(() => this.loadEvents());
-    this.loadEvents();
+  componentWillReceiveProps(props) {
+    this.checkIfEventAvailable();
+  }
+
+  checkIfEventAvailable(change) {
+    if (! this.props.disabled) {
+      if (change && change.id === moment(this.props.date).format("YYYY-MM-DD").toString()) {
+        agendaDB.replicate.from(agendaRemoteDB).then(() => this.loadEvents());
+      }
+      this.loadEvents();
+    }
   }
 
   loadEvents() {

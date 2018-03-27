@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom';
 import Header from './components/header/Header';
 import Schedule from './components/schedule/Schedule';
 import Agenda from './components/agenda/Agenda';
+import Grades from './components/grades/Grades';
 
 const App = () => (
   <Router>
@@ -14,6 +15,8 @@ const App = () => (
         <Route exact path="/" component={Schedule} />
         <Route path="/schedule" component={Schedule} />
         <Route path="/agenda" component={Agenda} />
+
+        <Route path="/grades" component={Grades} />
       </div>
 
       <div style={{marginBottom: "70px"}}/>

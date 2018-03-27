@@ -6,15 +6,18 @@ import Footer from './Footer';
 
 class Modal extends Component {
   static types = Object.freeze({
-    CancelSave: 1
+    CancelSave: 1,
+    DeleteOk: 2,
+    Cancel: 3,
+    NoFooter: 4,
   });
 
   componentWillReceiveProps(props) {
     if (this.props.open === false && props.open) {
       this.props.openHandler();
-      $("#eventModal").modal("show");
+      $("#" + props.id).modal("show");
     } else if (props.open === false) {
-      $("#eventModal").modal("hide");
+      $("#" + props.id).modal("hide");
     }
   }
 
@@ -27,14 +30,20 @@ class Modal extends Component {
               closeHandler={this.props.closeHandler}>
                 {this.props.children[0]}
             </Header>
-            <Body>
+            <Body
+              style={this.props.bodyStyle}>
               {this.props.children[1]}
             </Body>
-            <Footer
-              closeHandler={this.props.closeHandler}
-              saveHandler={this.props.saveHandler}>
-                {this.props.children[2]}
-            </Footer>
+
+            {this.props.type !== Modal.types.NoFooter ? (
+              <Footer
+                type={this.props.type}
+                closeHandler={this.props.closeHandler}
+                saveHandler={this.props.saveHandler}
+                deleteHandler={this.props.deleteHandler} >
+                  {this.props.children[2]}
+              </Footer>
+            ) : (<div />)}
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@
     "moment": "^2.20.1",
     "popper.js": "^1.12.9",
     "pouchdb-browser": "^6.4.3",
+    "pouchdb-find": "^6.4.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-router-dom": "^4.2.2",
