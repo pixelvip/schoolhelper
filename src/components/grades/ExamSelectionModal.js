@@ -26,10 +26,7 @@ class ExamSelectionModal extends Component {
 
           <div>
             <div className="list-group">
-              <a href="#" className="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-              <a href="#" className="list-group-item list-group-item-action">Morbi leo risus</a>
-              <a href="#" className="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-              <a href="#" className="list-group-item list-group-item-action">Vestibulum at eros</a>
+              {this.props.examList.map((exam, i) => <a key={i} className="list-group-item list-group-item-action">{exam.title} - {exam.subject}</a> )}
             </div>
           </div>
       </Modal>

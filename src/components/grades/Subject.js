@@ -1,17 +1,6 @@
 import React, { Component } from 'react';
 
 class Subject extends Component {
-  constructor() {
-    super();
-    this.state = {
-      gradeList: []
-    }
-  }
-
-  componentDidMount() {
-
-  }
-
   render() {
     return (
         <div className="card">
@@ -22,11 +11,22 @@ class Subject extends Component {
           <div id={this.props.subject.name} className="collapse" aria-labelledby={this.props.subject.name + "Header"}>
             <div className="card-body" style={{padding: "0px", margin: "-1px"}}>
               <ul className="list-group">
-                <li className="list-group-item">Cras justo odio</li>
-                <li className="list-group-item">Dapibus ac facilisis in</li>
-                <li className="list-group-item">Morbi leo risus</li>
-                <li className="list-group-item">Porta ac consectetur ac</li>
-                <li className="list-group-item">Vestibulum at eros</li>
+                {this.props.examList.length > 0 ? (
+                  this.props.examList.map((exam, i) =>
+                    <li key={i} className="list-group-item">
+                      <div className="d-flex justify-content-between">
+                        <div>
+                          {exam.title}
+                        </div>
+                        <div>
+                          {exam.grade}
+                        </div>
+                      </div>
+                    </li>
+                  )
+                ) : (<div />)}
+
+                <button className="list-group-item btn btn-light">Add Grade</button>
               </ul>
             </div>
           </div>

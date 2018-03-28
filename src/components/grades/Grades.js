@@ -1,36 +1,49 @@
 import React, { Component } from 'react';
-import { classDB, agendaDB } from 'data/Database';
+import { classDB, examDB } from 'data/Database';
 import Subject from './Subject';
 import ExamSelectionModal from './ExamSelectionModal';
+import Exam from 'data/Entities/Exam';
 
 class Grades extends Component {
   constructor() {
     super();
     this.state = {
       subjectList: [],
+      examList: [],
+      ungradedExamList: [],
       examSelectionModalOpen: false
     }
-
-    this.examList = [];
   }
 
   componentDidMount() {
     classDB.get("Subjects").then(doc => {
       this.setState({subjectList: doc.subjects});
-
     }).catch(err =>
       console.log(err)
     );
 
-    // agendaDB.find({
-    //   selector: {
-    //     name: 'mario'
-    //   }
-    // });
+    examDB.find({
+      selector: {
+        grades: {$elemMatch: {user: {$eq: 'gianluca'}}}
+      }
+    }).then(result =>
+      this.setState({examList: result.docs.map(exam => new Exam(exam._id, exam.grades.find(gradeObj => gradeObj.user === "gianluca").grade, () => this.forceUpdate()))})
+    );
+
+    examDB.find({
+      selector: {
+        $or: [
+          { grades: {$elemMatch: {user: {$nin: ['gianluca']}}} },
+          { grades: {$size: 0} }
+        ]
+      }
+    }).then(result => {
+      this.setState({ungradedExamList: result.docs.map(exam => new Exam(exam._id))});
+    });
   }
 
   addGradeHandler() {
-    this.examList = [];
+    console.log(this.state.examList);
     this.setState({examSelectionModalOpen: true});
   }
 
@@ -41,7 +54,7 @@ class Grades extends Component {
   render() {
     return (
       <div className="Grades">
-        {this.examList.length > 0 ? (
+        {this.state.ungradedExamList.length > 0 ? (
           <div>
             <button type="button" className="btn btn-light btn-lg btn-block" onClick={this.addGradeHandler.bind(this)}>
               <span className="material-icons" style={{position:"relative", top:"3px"}}>note_add</span> Add Grade
@@ -51,9 +64,15 @@ class Grades extends Component {
         ) : (<div/>)}
 
         {this.state.subjectList.length > 0 ? (
-          this.state.subjectList.map((subject, i) =>
-            <Subject key={i} subject={subject} />)
-        ) : (
+          this.state.subjectList.map((subject, i) => {
+            let examList = this.state.examList.filter(exam => exam.subject === subject.name);
+            if (subject.name === "French" && this.state.examList[0]) {
+              console.log(this.state.examList[0].subject);
+              console.log(this.state.examList[0].subject === subject.name);
+              console.log(examList);
+            }
+            return <Subject key={i} subject={subject} examList={examList.filter(exam => exam.subject === subject.name)} />
+        })) : (
           <p>No Subjects found.</p>
         )}
 
@@ -61,7 +80,7 @@ class Grades extends Component {
           open={this.state.examSelectionModalOpen}
           closeHandler={() => this.setState({examSelectionModalOpen: false})}
           examSelectionHandler={this.examSelectionHandler.bind(this)}
-          examList={this.examList} />
+          examList={this.state.ungradedExamList} />
 
       </div>
     );
