@@ -1,8 +1,10 @@
+import Event from './Event';
 import moment from 'moment';
 import { agendaDB } from 'data/Database';
 
-export default class Exam {
+export default class Exam extends Event {
   constructor(examId, grade, loadedCallback) {
+    super();
     if (examId) {
       agendaDB.find({
         selector: {
@@ -30,5 +32,10 @@ export default class Exam {
     this.description = event.description;
     this.subject = event.subject;
     this.date = moment(doc._id);
+  }
+
+  findByID(id, loadedCallback) {
+    super.findByID();
+    console.log("exam.js");
   }
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { classDB, examDB } from 'data/Database';
 import Subject from './Subject';
 import ExamSelectionModal from './ExamSelectionModal';
-import Exam from 'data/Entities/Exam';
+import Exam from 'data/entities/Exam';
 
 class Grades extends Component {
   constructor() {

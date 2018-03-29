@@ -25,20 +25,20 @@ class DayItem extends Component {
   }
 
   componentWillReceiveProps(props) {
-    this.checkIfEventAvailable();
+    this.loadEvents(props.date);
   }
 
   checkIfEventAvailable(change) {
     if (! this.props.disabled) {
       if (change && change.id === moment(this.props.date).format("YYYY-MM-DD").toString()) {
-        agendaDB.replicate.from(agendaRemoteDB).then(() => this.loadEvents());
+        agendaDB.replicate.from(agendaRemoteDB).then(() => this.loadEvents(this.props.date));
       }
-      this.loadEvents();
+      this.loadEvents(this.props.date);
     }
   }
 
-  loadEvents() {
-    agendaDB.get(moment(this.props.date).format("YYYY-MM-DD").toString()).then(doc => {
+  loadEvents(date) {
+    agendaDB.get(moment(date).format("YYYY-MM-DD").toString()).then(doc => {
       this.setState({events: doc.events.length > 0});
 
     }).catch(err =>
