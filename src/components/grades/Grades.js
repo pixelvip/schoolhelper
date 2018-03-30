@@ -27,7 +27,11 @@ class Grades extends Component {
         grades: {$elemMatch: {user: {$eq: 'gianluca'}}}
       }
     }).then(result =>
-      this.setState({examList: result.docs.map(exam => new Exam(exam._id, exam.grades.find(gradeObj => gradeObj.user === "gianluca").grade, () => this.forceUpdate()))})
+      result.docs.map(exam => new Exam(exam._id, exam =>
+        this.setState({
+          examList: [...this.state.examList, exam]
+        })
+      ))
     );
 
     examDB.find({
@@ -37,9 +41,13 @@ class Grades extends Component {
           { grades: {$size: 0} }
         ]
       }
-    }).then(result => {
-      this.setState({ungradedExamList: result.docs.map(exam => new Exam(exam._id))});
-    });
+    }).then(result =>
+      result.docs.map(exam => new Exam(exam._id, exam =>
+        this.setState({
+          ungradedExamList: [...this.state.ungradedExamList, exam]
+        })
+      ))
+    );
   }
 
   addGradeHandler() {
@@ -66,12 +74,7 @@ class Grades extends Component {
         {this.state.subjectList.length > 0 ? (
           this.state.subjectList.map((subject, i) => {
             let examList = this.state.examList.filter(exam => exam.subject === subject.name);
-            if (subject.name === "French" && this.state.examList[0]) {
-              console.log(this.state.examList[0].subject);
-              console.log(this.state.examList[0].subject === subject.name);
-              console.log(examList);
-            }
-            return <Subject key={i} subject={subject} examList={examList.filter(exam => exam.subject === subject.name)} />
+            return <Subject key={i} subject={subject} examList={examList} />
         })) : (
           <p>No Subjects found.</p>
         )}

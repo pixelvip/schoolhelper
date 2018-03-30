@@ -1,41 +1,41 @@
 import Event from './Event';
 import moment from 'moment';
-import { agendaDB } from 'data/Database';
+import { agendaDB, examDB } from 'data/Database';
 
 export default class Exam extends Event {
-  constructor(examId, grade, loadedCallback) {
+  constructor(examId, loadedCallback) {
     super();
+
+    this.grade = null;
+    this.eventType = "exam";
+
+    this.findByID(examId, loadedCallback);
+  }
+
+  findByID(examId, loadedCallback) {
     if (examId) {
       agendaDB.find({
         selector: {
           events: {$elemMatch: {id: {$eq: parseInt(examId,  10)}}}
         }
       }).then(result => {
-        this.setInfo(result.docs[0]);
+        examDB.get(examId).then(doc => {
+          let gradeObj = doc.grades.find(gradeObj => gradeObj.user === "gianluca");
+          if (gradeObj) {
+            this.grade = gradeObj.grade;
+          }
 
-        if (loadedCallback) {
-          loadedCallback();
-        }
+        }).catch(err =>
+          console.log(err)
+
+        ).then(() => {
+          super.setInfo(result.docs[0].events[0], moment(result.docs[0]._id));
+
+          if (loadedCallback) {
+            loadedCallback(this);
+          }
+        });
       });
     }
-
-    if (grade) {
-      this.grade = grade;
-    }
-  }
-
-  setInfo(doc) {
-    let event = doc.events[0];
-
-    this.id = event.id;
-    this.title = event.title;
-    this.description = event.description;
-    this.subject = event.subject;
-    this.date = moment(doc._id);
-  }
-
-  findByID(id, loadedCallback) {
-    super.findByID();
-    console.log("exam.js");
   }
 }

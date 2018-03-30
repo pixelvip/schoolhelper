@@ -9,7 +9,15 @@ export default class Event {
     this.private = false;
   }
 
+  setInfo(event, date) {
+    this.id = event.id;
+    this.title = event.title;
+    this.description = event.description;
+    this.subject = event.subject;
+    this.date = date;
+  }
+
   findByID(id, loadedCallback) {
-    console.log("event.js");
+
   }
 }

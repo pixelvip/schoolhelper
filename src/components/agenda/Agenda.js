@@ -7,8 +7,6 @@ import AddEvent from './event/AddEvent';
 import EventModal from './event/EventModal';
 import ShowEventModal from './event/ShowEventModal';
 
-import Exam from 'data/entities/Exam';
-
 class Agenda extends Component {
   constructor() {
     super();
@@ -30,9 +28,6 @@ class Agenda extends Component {
         this.loadCurrentEventList(this.state.dateSelection);
       }
     });
-
-    let exam = new Exam();
-    exam.findByID();
   }
 
   componentDidMount() {
