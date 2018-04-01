@@ -6,6 +6,7 @@ import Table from './calendar/Table';
 import AddEvent from './event/AddEvent';
 import EventModal from './event/EventModal';
 import ShowEventModal from './event/ShowEventModal';
+import { findEventById, createEvent } from 'data/EventHelper';
 
 class Agenda extends Component {
   constructor() {
@@ -40,80 +41,24 @@ class Agenda extends Component {
   }
 
   loadCurrentEventList(date) {
-    agendaDB.get(date.format("YYYY-MM-DD").toString()).then(doc =>
-      this.setState({currentEventList: doc.events})
-    ).catch(err =>
+    agendaDB.get(date.format("YYYY-MM-DD").toString()).then(doc => {
+
+      Promise.all(doc.events.map(event => findEventById(event.id))).then(eventList => {
+        this.setState({currentEventList: eventList});
+      })
+    }).catch(err =>
       this.setState({currentEventList: []})
     );
   }
 
-  saveEventHandler(date, event) {
-    let removeEvent = (! date.isSame(this.state.dateSelection, 'day'));
-    let docList = [];
-
-    agendaDB.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(doc => {
-      let eventList = doc.events;
-      let docEvent = eventList.find(docEvent => docEvent.id === event.id);
-      let index = eventList.indexOf(docEvent);
-
-      if (removeEvent) {
-        eventList.splice(index, 1);
-      } else {
-        eventList[index] = event;
-      }
-
-      docList.push(doc);
-
-      if (removeEvent) {
-        let formattedDate = date.format("YYYY-MM-DD").toString();
-        let targetDoc = [];
-
-        return agendaDB.get(formattedDate).then(doc =>
-          targetDoc = doc
-
-        ).catch(err => {
-          targetDoc = {
-        		_id: formattedDate,
-        		events: [],
-        	}
-
-        }).then(() => {
-          targetDoc.events.push(event);
-          docList.push(targetDoc);
-        });
-      }
-
-    }).catch(err =>
-      console.log(err)
-
-    ).then(() => {
-      agendaDB.bulkDocs(docList).catch(err => console.log(err));
-      if (removeEvent) {
-        this.selectionHandler(date);
-      } else {
-        this.loadCurrentEventList(this.state.dateSelection);
-      }
-    });
-  }
-
-  newEventHandler(date, newEvent) {
-    let formattedDate = date.format("YYYY-MM-DD").toString();
-    let eventDoc = {};
-
-    agendaDB.get(formattedDate).then(doc =>
-      eventDoc = doc
-
-    ).catch(() =>
-      eventDoc = {
-    		_id: formattedDate,
-    		events: [],
-    	}
-
-    ).then(() => {
-      eventDoc.events.push(newEvent);
-      agendaDB.put(eventDoc);
+  saveEventHandler(event) {
+    if (event.isNew) {
+      createEvent(event);
+      this.selectionHandler(event.date);
+    } else {
+      findEventById(event.id).save();
       this.loadCurrentEventList(this.state.dateSelection);
-    });
+    }
   }
 
   deleteEventHandler(event) {
@@ -166,7 +111,6 @@ class Agenda extends Component {
         <EventModal
           open={this.state.editModalOpen}
           closeHandler={() => this.setState({editModalOpen: false})}
-          newEventHandler={this.newEventHandler.bind(this)}
           saveEventHandler={this.saveEventHandler.bind(this)}
           date={this.state.dateSelection}
           event={this.selectedEvent} />

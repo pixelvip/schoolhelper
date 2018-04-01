@@ -37,28 +37,16 @@ class EventModal extends Component {
 
   submitHandler(e) {
     e.preventDefault();
+    this.props.saveEventHandler({
+      eventType: this.state.eventType,
+  		subject: this.state.subject,
+  		title: this.title.value,
+  		description: this.description.value,
+  		private: this.private.checked,
+      date: moment(this.date.value),
+      isNew: this.props.event ? false : true,
+    });
 
-    if (this.props.event) {
-      let event = Object.assign({}, this.props.event);
-      event.eventType = this.state.eventType;
-  		event.subject = this.state.subject;
-  		event.title = this.title.value;
-  		event.description = this.description.value;
-  		event.private = this.private.checked;
-
-      this.props.saveEventHandler(moment(this.date.value), event);
-
-    } else {
-      this.props.newEventHandler(moment(this.date.value), {
-        eventType: this.state.eventType,
-        subject: this.state.subject,
-        title: this.title.value,
-        description: this.description.value,
-        private: this.private.checked,
-        user: localStorage.getItem("username"),
-        id: moment().valueOf()
-      });
-    }
     this.props.closeHandler();
   }
 
