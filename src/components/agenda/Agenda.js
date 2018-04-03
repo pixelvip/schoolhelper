@@ -51,14 +51,14 @@ class Agenda extends Component {
     );
   }
 
-  saveEventHandler(event) {
-    if (event.isNew) {
-      createEvent(event);
-      this.selectionHandler(event.date);
-    } else {
-      findEventById(event.id).save();
-      this.loadCurrentEventList(this.state.dateSelection);
-    }
+  saveEventHandler(eventInfo) {
+    createEvent(eventInfo).then(event => {
+      if (eventInfo.isNew) {
+        this.selectionHandler(event.date);
+      } else {
+        this.loadCurrentEventList(this.state.dateSelection);
+      }
+    });
   }
 
   deleteEventHandler(event) {

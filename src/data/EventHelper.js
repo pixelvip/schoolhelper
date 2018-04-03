@@ -11,9 +11,8 @@ export function findEventById(eventId) {
           events: {$elemMatch: {id: {$eq: parseInt(eventId, 10)}}}
         }
       }).then(result => {
-        console.log(result); //NEED TO SEARCH EVENT IN EVENTLIST, DOC CAN HAVE MULTIPLE EVENTS
-        let event = result.docs[0].events[0];
-        let date = result.docs[0]._id;
+        let event = result.docs[0].events.find(event => event.id === eventId);
+        event.date = moment(result.docs[0]._id);
         let eventObj = null;
 
         switch(event.eventType) {
@@ -24,7 +23,7 @@ export function findEventById(eventId) {
             eventObj = new Event();
         }
 
-        eventObj.setInfo(event, date);
+        eventObj.setInfo(event);
         resolve(eventObj);
       });
     }
@@ -43,11 +42,8 @@ export function createEvent(eventInfo) {
         event = new Event();
     }
 
-    eventInfo.id = moment().valueOf();
-    eventInfo.user = localStorage.getItem("username");
-
     event.setInfo(eventInfo);
     event.save();
-
+    resolve(event);
   });
 }

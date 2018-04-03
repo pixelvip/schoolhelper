@@ -1,4 +1,5 @@
 import { agendaDB } from 'data/Database';
+import moment from 'moment';
 
 export default class Event {
   static eventType = Object.freeze({
@@ -18,9 +19,9 @@ export default class Event {
     this.user = null;
   }
 
-  setInfo(event, date) {
-    this.id = event.id;
-    this.date = date;
+  setInfo(event) {
+    this.id = event.id.toString();
+    this.date = event.date;
     this.eventType = event.eventType;
     this.title = event.title;
     this.description = event.description;
@@ -31,46 +32,58 @@ export default class Event {
 
   save() {
     return new Promise((resolve, reject) => {
-      let formattedDate = this.date.format("YYYY-MM-DD").toString();
-      let eventDoc = {};
+      let docList = [];
 
       agendaDB.find({
         selector: {
           events: {$elemMatch: {id: {$eq: parseInt(this.id, 10)}}}
         }
-      }).then(result => {
+      }).then(async result => {
         if (result.docs.length > 0) {
-          // let doc = result.docs[0];
-          // let eventList = doc.events;
-          //
-          // let docEvent = eventList.find(docEvent => docEvent.id === event.id);
-          // let index = eventList.indexOf(docEvent);
-          //
-          // if (removeEvent) {
-          //
-          // } else {
-          //   eventList[index] = event;
-          // }
-        
+          let eventList = result.docs[0].events;
+          let event = eventList.find(event => event.id === this.id);
+          let date = moment(result.docs[0]._id);
+          let index = eventList.indexOf(event);
 
+          if (this.date.isSame(date, 'days')) {
+            eventList[index] = JSON.parse(JSON.stringify(this));
+          } else {
+            eventList.splice(index, 1);
+            docList.push(await this.saveNewEvent());
+          }
 
+          docList.push(result.docs[0]);
 
         } else {
-          agendaDB.get(formattedDate).then(doc =>
-            eventDoc = doc
-
-          ).catch(() =>
-            eventDoc = {
-          		_id: formattedDate,
-          		events: [],
-          	}
-
-          ).then(() => {
-            eventDoc.events.push(this);
-            agendaDB.put(eventDoc);
-            resolve(this);
-          });
+          docList.push(await this.saveNewEvent());
         }
+
+        console.log(docList);
+        //agendaDB.bulkDocs(docList).catch(err => console.log(err));
+        resolve(this);
+
+      }).catch(err => {});
+    });
+  }
+
+  //private function
+  saveNewEvent() {
+    return new Promise((resolve, reject) => {
+      let formattedDate = moment(this.date).format("YYYY-MM-DD").toString();
+      let eventDoc = {};
+
+      agendaDB.get(formattedDate).then(doc =>
+        eventDoc = doc
+
+      ).catch(() =>
+        eventDoc = {
+          _id: formattedDate,
+          events: [],
+        }
+
+      ).then(() => {
+        eventDoc.events.push(JSON.parse(JSON.stringify(this)));
+        resolve(eventDoc);
       });
     });
   }

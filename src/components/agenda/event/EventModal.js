@@ -37,7 +37,21 @@ class EventModal extends Component {
 
   submitHandler(e) {
     e.preventDefault();
+
+    let eventId = 0;
+    let eventUser = "";
+
+    if (this.props.event) {
+      eventId = this.props.event.id;
+      eventUser = this.props.event.user;
+    } else {
+      eventId = moment().valueOf();
+      eventUser = localStorage.getItem("username");
+    }
+
     this.props.saveEventHandler({
+      id: eventId,
+      user: eventUser,
       eventType: this.state.eventType,
   		subject: this.state.subject,
   		title: this.title.value,
