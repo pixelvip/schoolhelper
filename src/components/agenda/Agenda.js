@@ -42,7 +42,6 @@ class Agenda extends Component {
 
   loadCurrentEventList(date) {
     agendaDB.get(date.format("YYYY-MM-DD").toString()).then(doc => {
-
       Promise.all(doc.events.map(event => findEventById(event.id))).then(eventList => {
         this.setState({currentEventList: eventList});
       })
@@ -53,25 +52,14 @@ class Agenda extends Component {
 
   saveEventHandler(eventInfo) {
     createEvent(eventInfo).then(event => {
-      if (eventInfo.isNew) {
-        this.selectionHandler(event.date);
-      } else {
-        this.loadCurrentEventList(this.state.dateSelection);
-      }
+      this.selectionHandler(event.date);
     });
   }
 
   deleteEventHandler(event) {
-    agendaDB.get(this.state.dateSelection.format("YYYY-MM-DD").toString()).then(eventDoc => {
-      let eventList = eventDoc.events;
-      let eventToDelete = eventList.find(docEvent => docEvent.id === event.id);
-      eventList.splice(eventList.indexOf(eventToDelete), 1);
-      agendaDB.put(eventDoc);
+    event.delete().then(() => {
       this.loadCurrentEventList(this.state.dateSelection);
-
-    }).catch(err =>
-      console.log(err)
-    );
+    });
   }
 
   //Open Event Modal for New Event

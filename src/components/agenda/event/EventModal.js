@@ -58,7 +58,6 @@ class EventModal extends Component {
   		description: this.description.value,
   		private: this.private.checked,
       date: moment(this.date.value),
-      isNew: this.props.event ? false : true,
     });
 
     this.props.closeHandler();
@@ -86,7 +85,7 @@ class EventModal extends Component {
         closeHandler={this.props.closeHandler}
         saveHandler={this.submitHandler.bind(this)} >
           <div>
-            <h5 className="modal-title" id="eventModalLabel">New Event</h5>
+            <h5 className="modal-title" id="eventModalLabel">Event</h5>
           </div>
           <div>
             <form onSubmit={(e) => e.preventDefault()} autoComplete="off" ref={ref => this.formRef = ref}>

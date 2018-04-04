@@ -20,36 +20,45 @@ export default class Event {
   }
 
   setInfo(event) {
-    this.id = event.id.toString();
-    this.date = event.date;
-    this.eventType = event.eventType;
-    this.title = event.title;
-    this.description = event.description;
-    this.subject = event.subject;
-    this.private = event.private;
-    this.user = event.user;
+    return new Promise((resolve, reject) => {
+      this.id = event.id.toString();
+      this.date = event.date;
+      this.eventType = event.eventType;
+      this.title = event.title;
+      this.description = event.description;
+      this.subject = event.subject;
+      this.private = event.private;
+      this.user = event.user;
+      resolve();
+    });
   }
 
   save() {
     return new Promise((resolve, reject) => {
       let docList = [];
+      let docToBeDeleted = null;
 
       agendaDB.find({
         selector: {
-          events: {$elemMatch: {id: {$eq: parseInt(this.id, 10)}}}
+          events: {$elemMatch: {id: {$eq: this.id}}}
         }
       }).then(async result => {
         if (result.docs.length > 0) {
-          let eventList = result.docs[0].events;
+          let doc = result.docs[0];
+          let eventList = doc.events;
           let event = eventList.find(event => event.id === this.id);
-          let date = moment(result.docs[0]._id);
+          let date = moment(doc._id);
           let index = eventList.indexOf(event);
 
           if (this.date.isSame(date, 'days')) {
             eventList[index] = JSON.parse(JSON.stringify(this));
           } else {
             eventList.splice(index, 1);
-            docList.push(await this.saveNewEvent());
+            if (eventList.length > 0) {
+              docList.push(await this.saveNewEvent());
+            } else {
+              docToBeDeleted = doc;
+            }
           }
 
           docList.push(result.docs[0]);
@@ -58,8 +67,12 @@ export default class Event {
           docList.push(await this.saveNewEvent());
         }
 
-        console.log(docList);
-        //agendaDB.bulkDocs(docList).catch(err => console.log(err));
+        agendaDB.bulkDocs(docList).catch(err => console.log(err));
+
+        if (docToBeDeleted) {
+          agendaDB.remove(docToBeDeleted);
+        }
+
         resolve(this);
 
       }).catch(err => {});
@@ -85,6 +98,21 @@ export default class Event {
         eventDoc.events.push(JSON.parse(JSON.stringify(this)));
         resolve(eventDoc);
       });
+    });
+  }
+
+  delete() {
+    return new Promise((resolve, reject) => {
+      agendaDB.get(this.date.format("YYYY-MM-DD").toString()).then(eventDoc => {
+        let eventList = eventDoc.events;
+        let eventToDelete = eventList.find(docEvent => docEvent.id === this.id);
+        eventList.splice(eventList.indexOf(eventToDelete), 1);
+        agendaDB.put(eventDoc);
+        resolve();
+
+      }).catch(err =>
+        console.log(err)
+      );
     });
   }
 }

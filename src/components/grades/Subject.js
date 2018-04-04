@@ -5,7 +5,18 @@ class Subject extends Component {
     return (
         <div className="card">
           <a className="card-header" id={this.props.subject.name + "Header"} data-toggle="collapse" data-target={"#" + this.props.subject.name} aria-expanded="false" aria-controls={this.props.subject.name}>
-            {this.props.subject.name}
+            <div className="d-flex justify-content-between">
+              <div>
+                {this.props.subject.name}
+              </div>
+              <div>
+                {this.props.examList.length > 0 ? (
+                  this.props.examList.map(exam => exam.grade).map(grade => parseFloat(grade)).reduce((p, c) => p + c) / this.props.examList.length
+                ) : (
+                  <div />
+                )}
+              </div>
+            </div>
           </a>
 
           <div id={this.props.subject.name} className="collapse" aria-labelledby={this.props.subject.name + "Header"}>
@@ -24,9 +35,13 @@ class Subject extends Component {
                       </div>
                     </li>
                   )
-                ) : (<div />)}
-
-                <button className="list-group-item btn btn-light">Add Grade</button>
+                ) : (
+                  <div>
+                    <li className="list-group-item text-muted">
+                      No Grades found.
+                    </li>
+                  </div>
+                )}
               </ul>
             </div>
           </div>

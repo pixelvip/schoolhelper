@@ -6,8 +6,8 @@ class ExamSelectionModal extends Component {
 
   }
 
-  examSelectionHandler() {
-    this.props.examSelectionHandler();
+  examSelectionHandler(exam) {
+    this.props.examSelectionHandler(exam);
     this.props.closeHandler();
   }
 
@@ -26,11 +26,21 @@ class ExamSelectionModal extends Component {
 
           <div>
             <div className="list-group">
-              {this.props.examList.map((exam, i) => <a key={i} className="list-group-item list-group-item-action">{exam.title} - {exam.subject}</a> )}
+              {this.props.examList.map((exam, i) => {
+                return <ExamSelectionItem key={i} exam={exam} examSelectionHandler={this.examSelectionHandler.bind(this)}/>;
+              })}
             </div>
           </div>
       </Modal>
     );
+  }
+}
+
+class ExamSelectionItem extends Component {
+  render() {
+    return (
+      <a className="list-group-item list-group-item-action" onClick={() => this.props.examSelectionHandler(this.props.exam)}>{this.props.exam.title} - {this.props.exam.subject}</a>
+    )
   }
 }
 

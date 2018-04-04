@@ -38,12 +38,14 @@ class DayItem extends Component {
   }
 
   loadEvents(date) {
-    agendaDB.get(moment(date).format("YYYY-MM-DD").toString()).then(doc => {
-      this.setState({events: doc.events.length > 0});
+    if (! this.props.disabled) {
+      agendaDB.get(moment(date).format("YYYY-MM-DD").toString()).then(doc => {
+        this.setState({events: doc.events.length > 0});
 
-    }).catch(err =>
-      this.setState({events: false})
-    );
+      }).catch(err =>
+        this.setState({events: false})
+      );
+    }
   }
 
   clickHandler() {

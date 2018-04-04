@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { classDB, examDB } from 'data/Database';
 import Subject from './Subject';
 import ExamSelectionModal from './ExamSelectionModal';
-import Exam from 'data/entities/Exam';
+import ExamModal from './ExamModal';
+import { findEventById } from 'data/EventHelper';
 
 class Grades extends Component {
   constructor() {
@@ -11,8 +12,19 @@ class Grades extends Component {
       subjectList: [],
       examList: [],
       ungradedExamList: [],
-      examSelectionModalOpen: false
+      examSelectionModalOpen: false,
+      examModalOpen: false,
     }
+
+    this.examSelection = null;
+
+    examDB.changes({
+      since: 'now',
+      live: true,
+      include_docs: false
+    }).on('change', change => {
+      this.loadData();
+    });
   }
 
   componentDidMount() {
@@ -22,41 +34,52 @@ class Grades extends Component {
       console.log(err)
     );
 
+    this.loadData();
+  }
+
+  loadData() {
     examDB.find({
       selector: {
-        grades: {$elemMatch: {user: {$eq: 'gianluca'}}}
+        grades: {$elemMatch: {user: {$eq: localStorage.getItem("username")}}}
       }
-    }).then(result =>
-      result.docs.map(exam => new Exam(exam._id, exam =>
+    }).then(result => {
+      this.setState({examList: []});
+      result.docs.forEach(exam => findEventById(exam._id).then(exam =>
         this.setState({
           examList: [...this.state.examList, exam]
         })
-      ))
-    );
+      ));
+    });
 
     examDB.find({
       selector: {
         $or: [
-          { grades: {$elemMatch: {user: {$nin: ['gianluca']}}} },
+          { grades: {$elemMatch: {user: {$nin: [localStorage.getItem("username")]}}} },
           { grades: {$size: 0} }
         ]
       }
-    }).then(result =>
-      result.docs.map(exam => new Exam(exam._id, exam =>
+    }).then(result => {
+      this.setState({ungradedExamList: []});
+      result.docs.forEach(exam => findEventById(exam._id).then(exam =>
         this.setState({
           ungradedExamList: [...this.state.ungradedExamList, exam]
         })
-      ))
-    );
+      ));
+    });
   }
 
   addGradeHandler() {
-    console.log(this.state.examList);
     this.setState({examSelectionModalOpen: true});
   }
 
-  examSelectionHandler() {
-    console.log("examSelectionHandler");
+  examSelectionHandler(exam) {
+    this.examSelection = exam;
+    this.setState({examModalOpen: true});
+  }
+
+  saveExamHandler(examInfo) {
+    this.examSelection.grade = examInfo.grade;
+    this.examSelection.save();
   }
 
   render() {
@@ -84,6 +107,12 @@ class Grades extends Component {
           closeHandler={() => this.setState({examSelectionModalOpen: false})}
           examSelectionHandler={this.examSelectionHandler.bind(this)}
           examList={this.state.ungradedExamList} />
+
+        <ExamModal
+          open={this.state.examModalOpen}
+          closeHandler={() => this.setState({examModalOpen: false})}
+          saveEventHandler={this.saveExamHandler.bind(this)}
+          exam={this.examSelection} />
 
       </div>
     );

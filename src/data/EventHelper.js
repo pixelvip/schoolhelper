@@ -8,7 +8,7 @@ export function findEventById(eventId) {
     if (eventId) {
       agendaDB.find({
         selector: {
-          events: {$elemMatch: {id: {$eq: parseInt(eventId, 10)}}}
+          events: {$elemMatch: {id: {$eq: eventId}}}
         }
       }).then(result => {
         let event = result.docs[0].events.find(event => event.id === eventId);
@@ -23,8 +23,9 @@ export function findEventById(eventId) {
             eventObj = new Event();
         }
 
-        eventObj.setInfo(event);
-        resolve(eventObj);
+        eventObj.setInfo(event).then(() =>
+          resolve(eventObj)
+        );
       });
     }
   });
@@ -42,8 +43,9 @@ export function createEvent(eventInfo) {
         event = new Event();
     }
 
-    event.setInfo(eventInfo);
-    event.save();
-    resolve(event);
+    event.setInfo(eventInfo).then(() => {
+      event.save();
+      resolve(event);
+    });
   });
 }
