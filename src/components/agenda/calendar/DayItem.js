@@ -68,11 +68,11 @@ class DayItem extends Component {
       width: 0,
     	height: 0,
     	borderTop: "12px solid grey",
-    	borderLeft: "12px solid transparent",
+    	borderRight: "12px solid transparent",
 
       position: "absolute",
       top: 0,
-      right: 0
+      left: 0
     }
 
     let eventIdenticator = this.state.events ? <div style={eventStyle} /> : <div />;
