@@ -1,6 +1,26 @@
 import React, { Component } from 'react';
 
 class Subject extends Component {
+
+  calculateAverage(examList) {
+    let weightedExamList = examList.map(exam => ({grade: parseFloat(exam.grade), weight: exam.weight/100}));
+    let gradeSum = weightedExamList.reduce((p, c) => p + c.grade * c.weight, 0);
+    let weightSum = weightedExamList.map(weightedExam => weightedExam.weight).reduce((p, c) => p + c);
+    return this.round(gradeSum / weightSum, 2);
+  }
+
+  //round method copied
+  round(number, precision) {
+    var shift = function (number, precision, reverseShift) {
+      if (reverseShift) {
+        precision = -precision;
+      }
+      var numArray = ("" + number).split("e");
+      return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
+    };
+    return shift(Math.round(shift(number, precision, false)), precision, true);
+  }
+
   render() {
     return (
         <div className="card">
@@ -11,7 +31,7 @@ class Subject extends Component {
               </div>
               <div>
                 {this.props.examList.length > 0 ? (
-                  this.props.examList.map(exam => exam.grade).map(grade => parseFloat(grade)).reduce((p, c) => p + c) / this.props.examList.length
+                  this.calculateAverage(this.props.examList)
                 ) : (
                   <div />
                 )}
@@ -24,16 +44,7 @@ class Subject extends Component {
               <ul className="list-group">
                 {this.props.examList.length > 0 ? (
                   this.props.examList.map((exam, i) =>
-                    <li key={i} className="list-group-item">
-                      <div className="d-flex justify-content-between">
-                        <div>
-                          {exam.title}
-                        </div>
-                        <div>
-                          {exam.grade}
-                        </div>
-                      </div>
-                    </li>
+                    <Grade key={i} exam={exam} gradeShowHandler={this.props.gradeShowHandler.bind(this)} />
                   )
                 ) : (
                   <div>
@@ -47,6 +58,27 @@ class Subject extends Component {
           </div>
         </div>
     );
+  }
+}
+
+class Grade extends Component {
+  gradeShowHandler() {
+    this.props.gradeShowHandler(this.props.exam);
+  }
+
+  render() {
+    return (
+      <li className="list-group-item">
+        <div className="d-flex justify-content-between" onClick={this.gradeShowHandler.bind(this)}>
+          <div>
+            {this.props.exam.title}
+          </div>
+          <div>
+            {this.props.exam.grade}
+          </div>
+        </div>
+      </li>
+    )
   }
 }
 

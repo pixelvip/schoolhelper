@@ -6,6 +6,7 @@ export default class Exam extends Event {
     super();
 
     this.grade = null;
+    this.weight = 100;
     this.eventType = Event.eventType.Exam;
   }
 
@@ -35,10 +36,13 @@ export default class Exam extends Event {
     return new Promise((resolve, reject) => {
       examDB.get(this.id).then(doc => {
         let gradeObj = doc.grades.find(gradeObj => gradeObj.user === localStorage.getItem("username"));
+
         if (gradeObj) {
           this.grade = gradeObj.grade;
+          this.weight = gradeObj.weight;
         }
-        resolve(this.grade);
+
+        resolve(gradeObj);
 
       }).catch(err => {
         resolve();
@@ -55,15 +59,32 @@ export default class Exam extends Event {
   }
 
   saveGrade() {
-    if (this.grade) {
+    return new Promise((resolve, reject) => {
       examDB.get(this.id).then(doc => {
-        doc.grades.push({
-          user: localStorage.getItem("username"),
-          grade: this.grade,
-        });
-        examDB.put(doc);
+        let gradeObj = doc.grades.find(gradeObj => gradeObj.user === localStorage.getItem("username"));
+
+        if (gradeObj) {
+          if (this.grade) {
+            gradeObj.grade = this.grade;
+            if (! this.weight) {
+              this.weight = 100;
+            }
+            gradeObj.weight = this.weight;
+          } else {
+            let index = doc.grades.indexOf(gradeObj);
+            doc.grades.splice(index, 1);
+          }
+        } else {
+          doc.grades.push({
+            user: localStorage.getItem("username"),
+            grade: this.grade,
+            weight: this.weight,
+          });
+        }
+
+        resolve(examDB.put(doc));
       });
-    }
+    });
   }
 
   createExam() {
@@ -90,5 +111,10 @@ export default class Exam extends Event {
         resolve();
       });
     });
+  }
+
+  deleteGrade() {
+    this.grade = null;
+    return this.saveGrade();
   }
 }

@@ -4,12 +4,17 @@ import Header from './Header';
 import Body from './Body';
 import Footer from './Footer';
 
+$(document).on('hidden.bs.modal', '.modal', function () {
+    $('.modal:visible').length && $(document.body).addClass('modal-open');
+});
+
 class Modal extends Component {
   static types = Object.freeze({
     CancelSave: 1,
     DeleteOk: 2,
     Cancel: 3,
     NoFooter: 4,
+    DeleteEditOk: 5,
   });
 
   componentWillReceiveProps(props) {
@@ -40,6 +45,7 @@ class Modal extends Component {
                 type={this.props.type}
                 closeHandler={this.props.closeHandler}
                 saveHandler={this.props.saveHandler}
+                editHandler={this.props.editHandler}
                 deleteHandler={this.props.deleteHandler} >
                   {this.props.children[2]}
               </Footer>

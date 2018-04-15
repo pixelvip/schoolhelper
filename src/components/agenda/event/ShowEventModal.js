@@ -22,6 +22,11 @@ class ShowEventModal extends Component {
     }
   }
 
+  editHandler() {
+    this.props.editEventHandler(this.props.event);
+    this.props.closeHandler();
+  }
+
   deleteHandler() {
     this.props.deleteEventHandler(this.props.event);
     this.props.closeHandler();
@@ -33,10 +38,11 @@ class ShowEventModal extends Component {
     return (
       <Modal
         id="showEventModal"
-        type={Modal.types.DeleteOk}
+        type={Modal.types.DeleteEditOk}
         open={this.props.open}
         openHandler={this.openHandler.bind(this)}
         closeHandler={this.props.closeHandler}
+        editHandler={this.editHandler.bind(this)}
         deleteHandler={this.deleteHandler.bind(this)} >
 
         <div>

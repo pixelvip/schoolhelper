@@ -20,7 +20,7 @@ class Agenda extends Component {
 
     this.selectedEvent = null;
 
-    agendaDB.changes({
+    this.agendaDBChanges = agendaDB.changes({
       since: 'now',
       live: true,
       include_docs: false
@@ -33,6 +33,10 @@ class Agenda extends Component {
 
   componentDidMount() {
     this.loadCurrentEventList(this.state.dateSelection);
+  }
+
+  componentWillUnmount() {
+    this.agendaDBChanges.cancel();
   }
 
   selectionHandler(date) {
@@ -69,7 +73,7 @@ class Agenda extends Component {
   }
 
   //Open Event Modal for Edit Event
-  eventEditHandler(event) {
+  editEventHandler(event) {
     this.selectedEvent = event;
     this.setState({editModalOpen: true});
   }
@@ -90,7 +94,6 @@ class Agenda extends Component {
         <Table
           date={this.state.dateSelection}
           eventList={this.state.currentEventList}
-          eventEditHandler={this.eventEditHandler.bind(this)}
           eventShowHandler={this.eventShowHandler.bind(this)} />
 
         <AddEvent
@@ -107,6 +110,7 @@ class Agenda extends Component {
           open={this.state.showModalOpen}
           closeHandler={() => this.setState({showModalOpen: false})}
           deleteEventHandler={this.deleteEventHandler.bind(this)}
+          editEventHandler={this.editEventHandler.bind(this)}
           event={this.selectedEvent} />
       </div>
     );

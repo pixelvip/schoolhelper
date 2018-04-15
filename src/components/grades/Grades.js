@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { classDB, examDB } from 'data/Database';
 import Subject from './Subject';
 import ExamSelectionModal from './ExamSelectionModal';
-import ExamModal from './ExamModal';
+import EditGradeModal from './EditGradeModal';
 import { findEventById } from 'data/EventHelper';
+import ShowGradeModal from './ShowGradeModal';
 
 class Grades extends Component {
   constructor() {
@@ -13,12 +14,13 @@ class Grades extends Component {
       examList: [],
       ungradedExamList: [],
       examSelectionModalOpen: false,
-      examModalOpen: false,
+      editModalOpen: false,
+      showModalOpen: false,
     }
 
     this.examSelection = null;
 
-    examDB.changes({
+    this.examDBChanges = examDB.changes({
       since: 'now',
       live: true,
       include_docs: false
@@ -35,6 +37,10 @@ class Grades extends Component {
     );
 
     this.loadData();
+  }
+
+  componentWillUnmount() {
+    this.examDBChanges.cancel();
   }
 
   loadData() {
@@ -74,12 +80,27 @@ class Grades extends Component {
 
   examSelectionHandler(exam) {
     this.examSelection = exam;
-    this.setState({examModalOpen: true});
+    this.setState({editModalOpen: true});
   }
 
-  saveExamHandler(examInfo) {
+  saveGradeHandler(examInfo) {
     this.examSelection.grade = examInfo.grade;
+    this.examSelection.weight = examInfo.weight;
     this.examSelection.save();
+  }
+
+  gradeShowHandler(exam) {
+    this.examSelection = exam;
+    this.setState({showModalOpen: true});
+  }
+
+  deleteGradeHandler(exam) {
+    exam.deleteGrade();
+  }
+
+  editGradeHandler(exam) {
+    this.examSelection = exam;
+    this.setState({editModalOpen: true});
   }
 
   render() {
@@ -97,7 +118,7 @@ class Grades extends Component {
         {this.state.subjectList.length > 0 ? (
           this.state.subjectList.map((subject, i) => {
             let examList = this.state.examList.filter(exam => exam.subject === subject.name);
-            return <Subject key={i} subject={subject} examList={examList} />
+            return <Subject key={i} subject={subject} examList={examList} gradeShowHandler={this.gradeShowHandler.bind(this)} />
         })) : (
           <p>No Subjects found.</p>
         )}
@@ -108,10 +129,17 @@ class Grades extends Component {
           examSelectionHandler={this.examSelectionHandler.bind(this)}
           examList={this.state.ungradedExamList} />
 
-        <ExamModal
-          open={this.state.examModalOpen}
-          closeHandler={() => this.setState({examModalOpen: false})}
-          saveEventHandler={this.saveExamHandler.bind(this)}
+        <EditGradeModal
+          open={this.state.editModalOpen}
+          closeHandler={() => this.setState({editModalOpen: false})}
+          saveGradeHandler={this.saveGradeHandler.bind(this)}
+          exam={this.examSelection} />
+
+        <ShowGradeModal
+          open={this.state.showModalOpen}
+          closeHandler={() => this.setState({showModalOpen: false})}
+          deleteGradeHandler={this.deleteGradeHandler.bind(this)}
+          editGradeHandler={this.editGradeHandler.bind(this)}
           exam={this.examSelection} />
 
       </div>

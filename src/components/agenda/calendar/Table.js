@@ -16,7 +16,7 @@ class Table extends Component {
 
       	{(this.props.eventList.length > 0) ? (
           this.props.eventList.map((event, i) =>
-            <TableItem key={i} event={event} eventEditHandler={this.props.eventEditHandler} eventShowHandler={this.props.eventShowHandler} />
+            <TableItem key={i} event={event} eventShowHandler={this.props.eventShowHandler} />
         )
         ) : (
           <p id="noDataText">No Events found.</p>

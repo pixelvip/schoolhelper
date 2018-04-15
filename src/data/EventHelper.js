@@ -11,6 +11,9 @@ export function findEventById(eventId) {
           events: {$elemMatch: {id: {$eq: eventId}}}
         }
       }).then(result => {
+        if (result.docs.length === 0) {
+          resolve();
+        }
         let event = result.docs[0].events.find(event => event.id === eventId);
         event.date = moment(result.docs[0]._id);
         let eventObj = null;
