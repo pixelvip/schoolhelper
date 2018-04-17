@@ -10,7 +10,7 @@ class DayItem extends Component {
     }
 
     if (! props.disabled) {
-      agendaDB.changes({
+      this.agendaDBChanges = agendaDB.changes({
         since: 'now',
         live: true,
         include_docs: false
@@ -22,6 +22,10 @@ class DayItem extends Component {
 
   componentDidMount() {
     this.checkIfEventAvailable();
+  }
+
+  componentWillUnmount() {
+    this.agendaDBChanges.cancel();
   }
 
   componentWillReceiveProps(props) {

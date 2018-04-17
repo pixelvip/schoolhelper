@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import { classDB, examDB } from 'data/Database';
 import Subject from './Subject';
 import ExamSelectionModal from './ExamSelectionModal';
@@ -66,11 +67,13 @@ class Grades extends Component {
       }
     }).then(result => {
       this.setState({ungradedExamList: []});
-      result.docs.forEach(exam => findEventById(exam._id).then(exam =>
-        this.setState({
-          ungradedExamList: [...this.state.ungradedExamList, exam]
-        })
-      ));
+      result.docs.forEach(exam => findEventById(exam._id).then(exam => {
+        if (moment().isSameOrAfter(exam.date, 'day')) {
+          this.setState({
+            ungradedExamList: [...this.state.ungradedExamList, exam]
+          });
+        }
+      }));
     });
   }
 

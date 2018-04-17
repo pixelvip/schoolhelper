@@ -9,7 +9,7 @@ import Grades from './components/grades/Grades';
 import Settings from './components/settings/Settings';
 
 const App = () => (
-  <Router>
+  <Router basename={process.env.PUBLIC_URL + "/"}>
     <div>
       <Header />
       <div className="container">

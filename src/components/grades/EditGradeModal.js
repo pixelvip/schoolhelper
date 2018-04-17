@@ -14,8 +14,6 @@ class EditGradeModal extends Component {
   }
 
   submitHandler(e) {
-    e.preventDefault();
-
     this.props.saveGradeHandler({
       grade: this.grade.value,
       weight: this.weight.value,

@@ -28,7 +28,7 @@ class SubjectSelect extends Component {
     			if (subject) {
             this.setState({subjectSelection: subject.subject});
     			} else {
-            this.setState({subjectSelection: this.state.subjects[0].subject});
+            this.setState({subjectSelection: this.state.subjects[0].name});
           }
         }
 

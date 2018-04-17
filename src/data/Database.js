@@ -6,9 +6,17 @@ function getPouchDB(name) {
   return new PouchDB(name);
 }
 
+function getCouchDBURL() {
+  let couchDBURL = process.env.REACT_APP_DEV_COUCHDB;
+  if (process.env.NODE_ENV === 'production') {
+    couchDBURL = process.env.REACT_APP_COUCHDB;
+  }
+  return couchDBURL;
+}
+
 function getClassDB() {
   let db = getPouchDB('bms1b');
-  db.sync(process.env.REACT_APP_COUCHDB + 'bms1b', {
+  db.sync(getClassRemoteDB(), {
     live: true,
     retry: true
   }).on('error', err =>
@@ -20,7 +28,7 @@ function getClassDB() {
 export let classDB = getClassDB();
 
 function getClassRemoteDB() {
-  return process.env.REACT_APP_COUCHDB + 'bms1b';
+  return getCouchDBURL() + 'bms1b';
 }
 export let classRemoteDB = getClassRemoteDB();
 
@@ -39,7 +47,7 @@ function getAgendaDB() {
 export let agendaDB = getAgendaDB();
 
 function getAgendaRemoteDB() {
-  return process.env.REACT_APP_COUCHDB + 'bms1b_agenda';
+  return getCouchDBURL() + 'bms1b_agenda';
 }
 export let agendaRemoteDB = getAgendaRemoteDB();
 
@@ -58,6 +66,6 @@ function getExamDB() {
 export let examDB = getExamDB();
 
 function getExamRemoteDB() {
-  return process.env.REACT_APP_COUCHDB + 'bms1b_exam';
+  return getCouchDBURL() + 'bms1b_exam';
 }
 export let examRemoteDB = getExamRemoteDB();

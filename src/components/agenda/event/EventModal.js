@@ -35,9 +35,7 @@ class EventModal extends Component {
     }
   }
 
-  submitHandler(e) {
-    e.preventDefault();
-
+  submitHandler() {
     let eventId = 0;
     let eventUser = "";
 

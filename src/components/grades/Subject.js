@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { round } from 'utility/functions/Calculation';
 
 class Subject extends Component {
 
@@ -6,19 +7,7 @@ class Subject extends Component {
     let weightedExamList = examList.map(exam => ({grade: parseFloat(exam.grade), weight: exam.weight/100}));
     let gradeSum = weightedExamList.reduce((p, c) => p + c.grade * c.weight, 0);
     let weightSum = weightedExamList.map(weightedExam => weightedExam.weight).reduce((p, c) => p + c);
-    return this.round(gradeSum / weightSum, 2);
-  }
-
-  //round method copied
-  round(number, precision) {
-    var shift = function (number, precision, reverseShift) {
-      if (reverseShift) {
-        precision = -precision;
-      }
-      var numArray = ("" + number).split("e");
-      return +(numArray[0] + "e" + (numArray[1] ? (+numArray[1] + precision) : precision));
-    };
-    return shift(Math.round(shift(number, precision, false)), precision, true);
+    return round(gradeSum / weightSum, 2);
   }
 
   render() {
