@@ -25,7 +25,9 @@ class DayItem extends Component {
   }
 
   componentWillUnmount() {
-    this.agendaDBChanges.cancel();
+    if (! this.props.disabled) {
+      this.agendaDBChanges.cancel();
+    }
   }
 
   componentWillReceiveProps(props) {
