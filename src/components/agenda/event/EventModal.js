@@ -87,6 +87,8 @@ class EventModal extends Component {
           </div>
           <div>
             <form onSubmit={(e) => e.preventDefault()} autoComplete="off" ref={ref => this.formRef = ref}>
+              <EventTypeSelect changeHandler={this.eventTypeChangedHandler.bind(this)} value={this.state.eventType} />
+
               <div className="form-group row">
                 <label htmlFor="titleInput" className="col-sm-2 col-form-label">Title</label>
                 <div className="col-sm-10">
@@ -105,8 +107,6 @@ class EventModal extends Component {
                   <input type="date" className="form-control" onChange={this.dateChangedHandler.bind(this)} value={this.state.date} ref={ref => this.date = ref} required />
                 </div>
               </div>
-
-              <EventTypeSelect changeHandler={this.eventTypeChangedHandler.bind(this)} value={this.state.eventType} />
 
               <SubjectSelect changeHandler={this.subjectChangedHandler.bind(this)} value={this.state.subject} />
 
