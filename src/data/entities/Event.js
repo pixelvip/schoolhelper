@@ -19,16 +19,16 @@ export default class Event {
     this.user = null;
   }
 
-  setInfo(event) {
+  setInfo(eventInfo) {
     return new Promise((resolve, reject) => {
-      this.id = event.id.toString();
-      this.date = event.date;
-      this.eventType = event.eventType;
-      this.title = event.title;
-      this.description = event.description;
-      this.subject = event.subject;
-      this.private = event.private;
-      this.user = event.user;
+      this.id = eventInfo.id.toString();
+      this.date = eventInfo.date;
+      this.eventType = eventInfo.eventType;
+      this.title = eventInfo.title;
+      this.description = eventInfo.description;
+      this.subject = eventInfo.subject;
+      this.private = eventInfo.private;
+      this.user = eventInfo.user;
       resolve();
     });
   }
@@ -36,7 +36,6 @@ export default class Event {
   save() {
     return new Promise((resolve, reject) => {
       let docList = [];
-      let docToBeDeleted = null;
 
       agendaDB.find({
         selector: {
@@ -54,10 +53,11 @@ export default class Event {
             eventList[index] = JSON.parse(JSON.stringify(this));
           } else {
             eventList.splice(index, 1);
-            if (eventList.length > 0) {
-              docList.push(await this.saveNewEvent());
-            } else {
-              docToBeDeleted = doc;
+            docList.push(await this.saveNewEvent());
+
+            if (eventList.length === 0) {
+              doc._deleted = true;
+              docList.push(doc);
             }
           }
 
@@ -68,11 +68,6 @@ export default class Event {
         }
 
         agendaDB.bulkDocs(docList).catch(err => console.log(err));
-
-        if (docToBeDeleted) {
-          agendaDB.remove(docToBeDeleted);
-        }
-
         resolve(this);
 
       }).catch(err => {});

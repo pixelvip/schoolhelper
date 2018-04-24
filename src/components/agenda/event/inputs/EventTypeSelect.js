@@ -4,19 +4,8 @@ import IconRadio from 'utility/components/inputfields/IconRadio';
 import Event from 'data/entities/Event';
 
 class EventTypeSelect extends Component {
-  constructor() {
-    super();
-    this.state = {
-      eventTypeSelection: ""
-    }
-  }
-
-  componentWillReceiveProps(props) {
-    this.setState({eventTypeSelection: props.value});
-  }
-
   componentDidMount() {
-    this.props.changeHandler("homework");
+    this.props.changeHandler(Event.eventType.Homework);
   }
 
   render() {
@@ -25,7 +14,7 @@ class EventTypeSelect extends Component {
     });
 
     return (
-      <IconRadio list={iconList} active={this.eventTypeSelection} changeHandler={this.props.changeHandler} />
+      <IconRadio list={iconList} active={this.props.value} changeHandler={this.props.changeHandler} />
     );
   }
 }

@@ -9,8 +9,14 @@ class IconRadio extends Component {
   }
 
   clickHandler(i) {
-    console.log(i);
-    this.props.changeHandler();
+    this.setState({currentActive: i});
+    this.props.changeHandler(this.props.list[i].value);
+  }
+
+  componentWillReceiveProps(props) {
+    let obj = this.props.list.filter(button => button.value === props.active)[0];
+    let index = this.props.list.indexOf(obj);
+    this.setState({currentActive: index});
   }
 
   render() {
@@ -27,10 +33,6 @@ class IconRadio extends Component {
 }
 
 class IconButton extends Component {
-  gradeShowHandler() {
-    this.props.gradeShowHandler(this.props.exam);
-  }
-
   render() {
     let buttonClassName = "btn btn-light w-100";
     if (this.props.active) {

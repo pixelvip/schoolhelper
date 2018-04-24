@@ -12,7 +12,8 @@ export function findEventById(eventId) {
         }
       }).then(result => {
         if (result.docs.length === 0) {
-          resolve();
+          console.error(`EventID: ${eventId} not found.`);
+          reject(eventId);
         }
         let event = result.docs[0].events.find(event => event.id === eventId);
         event.date = moment(result.docs[0]._id);

@@ -9,14 +9,12 @@ class EditGradeModal extends Component {
       let exam = this.props.exam;
 
       this.grade.value = exam.grade;
-      this.weight.value = exam.weight;
     }
   }
 
   submitHandler(e) {
     this.props.saveGradeHandler({
       grade: this.grade.value,
-      weight: this.weight.value,
     });
     this.props.closeHandler();
   }
@@ -40,13 +38,6 @@ class EditGradeModal extends Component {
                 <label htmlFor="gradeInput" className="col-sm-2 col-form-label">Grade</label>
                 <div className="col-sm-10">
                   <input type="number" step="0.1" min="1" max="6" className="form-control" ref={ref => this.grade = ref} required />
-                </div>
-              </div>
-
-              <div className="form-group row">
-                <label htmlFor="gradeInput" className="col-sm-2 col-form-label">Weight</label>
-                <div className="col-sm-10">
-                  <input type="number" step="1" min="1" max="100" className="form-control" ref={ref => this.weight = ref} />
                 </div>
               </div>
 

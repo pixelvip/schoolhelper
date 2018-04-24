@@ -10,9 +10,10 @@ export default class Exam extends Event {
     this.eventType = Event.eventType.Exam;
   }
 
-  setInfo(event, date) {
+  setInfo(eventInfo) {
     return new Promise((resolve, reject) => {
-      super.setInfo(event, date).then(() => {
+      super.setInfo(eventInfo).then(() => {
+        this.weight = eventInfo.weight;
         this.loadGrade().then(() => {
           resolve();
         });
@@ -39,8 +40,9 @@ export default class Exam extends Event {
 
         if (gradeObj) {
           this.grade = gradeObj.grade;
-          this.weight = gradeObj.weight;
         }
+
+        this.weight = doc.weight;
 
         resolve(gradeObj);
 
@@ -66,10 +68,7 @@ export default class Exam extends Event {
         if (gradeObj) {
           if (this.grade) {
             gradeObj.grade = this.grade;
-            if (! this.weight) {
-              this.weight = 100;
-            }
-            gradeObj.weight = this.weight;
+
           } else {
             let index = doc.grades.indexOf(gradeObj);
             doc.grades.splice(index, 1);
@@ -78,7 +77,6 @@ export default class Exam extends Event {
           doc.grades.push({
             user: localStorage.getItem("username"),
             grade: this.grade,
-            weight: this.weight,
           });
         }
 
@@ -90,6 +88,7 @@ export default class Exam extends Event {
   createExam() {
     examDB.put({
       _id: this.id,
+      weight: this.weight,
       grades: [],
     });
   }

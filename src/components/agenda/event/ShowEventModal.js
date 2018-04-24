@@ -51,6 +51,9 @@ class ShowEventModal extends Component {
         <div>
           <h6>{event.subject}</h6>
           <p>{event.description}</p>
+          {event.weight ? (
+            <div>Weight: <b>{event.weight}%</b><br /></div>
+          ) : (null)}
 
           <EventIcon style={{position: "absolute", top: "10px", right: "15px"}} type={event.eventType} />
 
