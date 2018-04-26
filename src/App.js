@@ -14,7 +14,9 @@ const App = () => (
       <Header />
       <div className="container">
         <br />
-        <Route exact path="/" component={Schedule} />
+        <Route exact path="/" render={() => (
+          <Schedule />
+        )} />
         <Route path="/schedule" component={Schedule} />
         <Route path="/agenda" component={Agenda} />
 
