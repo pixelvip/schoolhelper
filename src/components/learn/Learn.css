@@ -1,0 +1,32 @@
+.Learn {
+  font-size: 0;
+}
+
+.examCard {
+  border: 1px solid #ccc;
+  border-radius: 12px;
+  padding: 0.5em 16px;
+  width: 8rem;
+
+  display: block;
+  float: left;
+  font-size: 1rem;
+}
+
+.examPercent {
+  font-size: 24pt;
+  padding: 0.5em 0px;
+  left: 50vw;
+}
+
+.examCardBody {
+
+}
+
+.examCardTitle {
+
+}
+
+.examCardText {
+
+}
