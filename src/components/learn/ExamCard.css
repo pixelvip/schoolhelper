@@ -1,0 +1,30 @@
+.examCard {
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+  padding: 0.5em 1em;
+  width: 100%;
+
+  display: inline-block;
+
+  margin-bottom: 0.75em;
+	padding-bottom: 0.5em;
+}
+
+.examPercent {
+  font-size: 2rem;
+  text-align: center;
+  padding: 0.5em 0;
+}
+
+.examCardBody {
+
+}
+
+.examCardTitle {
+
+}
+
+.examCardSubject {
+  font-size: 0.8rem;
+  color: #6c757d;
+}

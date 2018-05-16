@@ -25,7 +25,9 @@ export default class Exam extends Event {
     return new Promise((resolve, reject) => {
       super.save().then(async exam => {
         if (await this.checkIfExamExist()) {
-          this.saveGrade();
+          if (this.grade) {
+            this.saveGrade();
+          }
         } else {
           this.createExam();
         }
