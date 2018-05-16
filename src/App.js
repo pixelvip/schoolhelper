@@ -12,8 +12,7 @@ const App = () => (
   <Router basename={process.env.PUBLIC_URL + "/"}>
     <div>
       <Header />
-      <div className="container">
-        <br />
+      <div className="container main-content">
         <Route exact path="/" render={() => (
           <Schedule />
         )} />

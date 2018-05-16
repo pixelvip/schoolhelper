@@ -1,3 +1,7 @@
+.main-content {
+	padding-top: 1em;
+}
+
 .addButton {
 	position: fixed;
 	bottom: 25px;

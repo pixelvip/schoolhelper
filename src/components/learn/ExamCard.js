@@ -2,12 +2,15 @@ import React, { Component } from 'react';
 import './ExamCard.css';
 
 class ExamCard extends Component {
-  
+  selectExamHandler() {
+    console.log(this.props.exam);
+  }
+
   render() {
     return (
-      <div className="examCard">
+      <div className="examCard" onClick={this.selectExamHandler.bind(this)}>
         <div className="examPercent">
-          93%
+          {Math.floor(Math.random() * 101)}%
         </div>
         <div className="examCardBody">
           <h6 className="examCardTitle">{this.props.exam.title}</h6>
