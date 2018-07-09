@@ -9,7 +9,7 @@
     "material-design-icons": "^3.0.1",
     "moment": "^2.21.0",
     "popper.js": "^1.14.1",
-    "pouchdb-browser": "^6.4.3",
+    "pouchdb": "^7.0.0",
     "pouchdb-find": "^6.4.3",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
@@ -25,6 +25,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "gh-pages": "^1.1.0"
+    "gh-pages": "^1.1.0",
+    "pouchdb-memory": "^6.0.0"
   }
 }
